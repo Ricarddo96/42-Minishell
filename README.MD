@@ -100,4 +100,35 @@ echo '$HOME'         → literal, NO expandir
 Si resuelves bien las comillas en el lexer, el resto fluye. Si las ignoras y las tratas después, todo se complica.
 
 
-PARA JULIA: HACER LA FUNCIÓN DEL TOKENIZER "tokenizer_quotes"  
+**PARA JULIA: HACER LA FUNCIÓN DEL TOKENIZER "tokenizer_quotes"**:
+
+La función recibe line e i apuntando a la comilla de apertura (" o '). Tiene que devolver la nueva posición de i tras haber creado el token.
+
+Paso 1 — Guardar qué tipo de comilla abrió
+line[i] es " o '. Guárdalo en una variable char quote antes de avanzar. Lo necesitarás para saber cuándo cierra.
+
+Paso 2 — Avanzar pasando la comilla de apertura
+i++ para no incluirla en el token.
+
+Paso 3 — Guardar la posición de inicio del contenido
+start = i. El contenido del token empieza aquí.
+
+Paso 4 — Avanzar hasta encontrar la comilla de cierre
+while que avance mientras line[i] no sea quote y no sea \0. Al salir del while tienes dos casos:
+
+line[i] == quote → comilla cerrada correctamente
+line[i] == '\0' → comilla sin cerrar → error, devuelve -1
+Paso 5 — Extraer el substring entre comillas
+Con ft_substr(line, start, i - start) obtienes el contenido sin las comillas.
+
+Paso 6 — Crear el token y añadirlo a la lista
+Igual que en tokenize_word: new_token(word, WORD), free(word), comprobar NULL, add_back.
+
+Paso 7 — Avanzar pasando la comilla de cierre
+i++ para no procesar la comilla de cierre como parte del siguiente token.
+
+Paso 8 — Devolver i
+La nueva posición para que tokenize continúe desde ahí.
+
+Caso especial importante
+¿Qué pasa con "hola"mundo? Después de cerrar las comillas, si el siguiente carácter no es espacio ni operador, sigue siendo el mismo token. Por ahora puedes ignorarlo e implementarlo después, pero tenlo en mente.
