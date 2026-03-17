@@ -1,0 +1,103 @@
+Fase 1 Tokenizado y Parseo:
+
+Hay que transformar una línea de texto bruta en una **estructura de datos** que tu ejecutor pueda entender.
+
+---
+
+## 1. Fase de Tokenización (Lexer)
+
+El objetivo es dividir la línea en "piezas" (tokens) ignorando los espacios, pero respetando las reglas de la shell. Debes identificar:
+
+* **Palabras/Comandos:** El comando principal y sus argumentos (ej: `ls`, `-la`).
+* **Operadores de Redirección:** * `<` (Entrada)
+* `>` (Salida truncando)
+* `<<` (Here-doc)
+* `>>` (Salida append/añadiendo)
+
+
+* **Pipes:** El carácter `|`.
+
+---
+
+## 2. Gestión de Comillas (Quotes)
+
+Este es el punto donde la mayoría de la gente falla. Debes implementar:
+
+* **Comillas Simples (`'`):** Todo lo que hay dentro es literal. No se expanden variables.
+* **Comillas Dobles (`"`):** Se permite la expansión de variables (`$VAR`), pero el contenido se mantiene como un solo token aunque tenga espacios.
+* **Comillas vacías:** Manejar casos como `""` o `''` (deben ser un token vacío, no "nada").
+
+---
+
+## 3. Expansión de Variables de Entorno
+
+Antes de ejecutar, debes buscar el símbolo `$` y sustituirlo por su valor:
+
+* **Variables estándar:** `$USER`, `$PATH`, `$HOME`.
+* **El estado de salida (`$?`):** Debes sustituir `$?` por el número que devolvió el último comando ejecutado.
+* **Variables inexistentes:** Si pones `$ESTO_NO_EXISTE`, debe expandirse a un string vacío (a menos que esté entre comillas simples).
+
+---
+
+## 4. Limpieza (Syntactic Analysis)
+
+Una vez tienes los tokens, debes validar que la frase "tenga sentido" antes de intentar ejecutarla:
+
+* **Pipes mal puestos:** `| ls` o `ls | | wc` o `ls |`.
+* **Redirecciones huérfanas:** `ls >` (sin archivo después).
+* **Comillas abiertas:** ¿Qué pasa si el usuario escribe `ls "archivo` y nunca cierra la comilla? (Normalmente se considera un error de sintaxis en Minishell).
+
+---
+
+## 5. Estructura de Datos Final
+
+No devuelvas solo un `char **`. Para las siguientes fases, lo ideal es que el parser rellene una **lista enlazada** donde cada nodo sea un comando separado por un pipe. Algo así:
+
+```c
+typedef struct s_cmd {
+    char    **args;      // ["ls", "-la", NULL]
+    char    *infile;    // nombre del archivo de <
+    char    *outfile;   // nombre del archivo de > o >>
+    int     append;     // booleano para saber si es > o >>
+    struct s_cmd *next; // Siguiente comando tras un pipe
+} t_cmd;
+
+```
+
+---
+
+
+Parseo: 
+
+3 fases separadas
+
+
+input string
+     │
+     ▼
+ [LEXER]          → lista enlazada de tokens con tipo
+     │               TOKEN_WORD, TOKEN_PIPE, TOKEN_REDIR_IN,
+     │               TOKEN_REDIR_OUT, TOKEN_APPEND, TOKEN_HEREDOC
+     ▼
+ [VALIDATOR]      → comprueba que la secuencia de tokens es válida
+     │               (no pipe al inicio/fin, no dos pipes seguidos,
+     │                no redireccion sin archivo después, etc.)
+     ▼
+ [PARSER]         → convierte los tokens en array de t_cmd
+¿Por qué separar lexer de validator de parser?
+
+
+El lexer solo clasifica, no juzga. Convierte ls -la | grep foo > out en una lista de tokens tipados. También es donde manejas las comillas (simples y dobles), que es lo más delicado.
+El validator trabaja sobre tokens, no sobre strings crudos. Es muchísimo más fácil comprobar PIPE → PIPE o REDIR → EOF sobre una lista de tipos que sobre caracteres.
+El parser construye las t_cmd ya con la garantía de que la entrada es válida.
+Lo más importante que debes resolver primero
+Antes de cualquier estrategia, el manejo de comillas es el punto más crítico del lexer:
+
+echo "hello world"   → 1 token WORD: hello world  (sin comillas)
+echo 'it'"'"'s'      → 1 token WORD: it's
+echo "$HOME"         → expand variable
+echo '$HOME'         → literal, NO expandir
+Si resuelves bien las comillas en el lexer, el resto fluye. Si las ignoras y las tratas después, todo se complica.
+
+
+PARA JULIA: HACER LA FUNCIÓN DEL TOKENIZER "tokenizer_quotes"  

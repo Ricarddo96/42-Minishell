@@ -1,13 +1,15 @@
 NAME = minishell
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -Iincludes -Ilibft
 
 LIBFT_DIR = libft
 LIBFT_LIB = $(LIBFT_DIR)/libft.a
 LIBFT_FLAGS = -L$(LIBFT_DIR) -lft
 
-SRC = main.c
+SRC =	srcs/main.c \
+		srcs/parser/tokenizer.c
+
 OBJ = $(SRC:.c=.o)
 
 all: $(NAME)
