@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 12:48:32 by ridoming          #+#    #+#             */
-/*   Updated: 2026/03/17 17:43:57 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/03/18 14:17:12 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ typedef struct s_tkn
 {
     char            *token;
     t_tkn_type      type;
+    int             single_quoted;
     struct s_tkn    *next;
     struct s_tkn    *prev;
 }   t_tkn;
@@ -71,6 +72,7 @@ int		tokenize_redir_in(char *line, int i, t_tkn **tkn_list);
 int		tokenize_pipe(char *line, int i, t_tkn **tkn_list);
 int		tokenize_word(char *line, int i, t_tkn **tkn_list);
 t_tkn	*tokenize(char *line);
+int		validate(t_tkn *seq);
 int		parser(char *line);
 
 #endif

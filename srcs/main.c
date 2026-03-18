@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 12:41:52 by ridoming          #+#    #+#             */
-/*   Updated: 2026/03/17 17:45:34 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/03/18 12:58:36 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,8 @@ int	parser(char *line)
 	t_tkn	*sequence;
 
 	sequence = tokenize(line);
-	(void)sequence;
+	if (!validate(sequence))
+		return (0);
 	return (EXIT_SUCCESS);
 }
 
