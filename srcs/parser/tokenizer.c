@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/16 14:05:24 by ridoming          #+#    #+#             */
-/*   Updated: 2026/03/18 12:53:28 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/07 19:43:57 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ int	tokenize_quotes(char *line, int i, t_tkn **tkn_list)
 	int		start;
 	char	which_quote;
 	char	*str;
-	t_tkn	token;
+	t_tkn	*token;
 
 	which_quote = line[i];
 	start = i;
@@ -64,11 +64,11 @@ int	tokenize_quotes(char *line, int i, t_tkn **tkn_list)
 		i++;
 	if (line[i] == '\0')
 		return (-1);
-	while (line[i + 1] && line[i + 1] != '"' line[i + 1] != 39
-		&& line[i + 1] != '>' && line[i + 1] != '<' line[i + 1] != '|'
-		&& line[i] != ' ')
+	while (line[i + 1] && line[i + 1] != '"' && line[i + 1] != 39
+		&& line[i + 1] != '>' && line[i + 1] != '<' && line[i + 1] != '|'
+		&& line[i + 1] != ' ')
 		i++;
-	str = ft_substr(line, start, i - start);
+	str = ft_substr(line, start, i - start + 1);
 	if (!str)
 		return (-1);
 	token = new_token(str, WORD);
@@ -76,8 +76,11 @@ int	tokenize_quotes(char *line, int i, t_tkn **tkn_list)
 	if (!token)
 		return (-1);
 	add_back(tkn_list, token);
+	if (which_quote == '\'')
+    	token->single_quoted = 1;
 	return (i + 1);
 }
+
 
 int	tokenize_append(char *line, int i, t_tkn **tkn_list)
 {
