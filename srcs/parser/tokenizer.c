@@ -52,9 +52,31 @@ void	add_back(t_tkn **head, t_tkn *new_tkn)
 
 int	tokenize_quotes(char *line, int i, t_tkn **tkn_list)
 {
-	(void)line;
-	(void)tkn_list;
-	return (i);
+	int		start;
+	char	which_quote;
+	char	*str;
+	t_tkn	token;
+
+	which_quote = line[i];
+	start = i;
+	i++;
+	while (line[i] && line[i] != which_quote)
+		i++;
+	if (line[i] == '\0')
+		return (-1);
+	while (line[i + 1] && line[i + 1] != '"' line[i + 1] != 39
+		&& line[i + 1] != '>' && line[i + 1] != '<' line[i + 1] != '|'
+		&& line[i] != ' ')
+		i++;
+	str = ft_substr(line, start, i - start);
+	if (!str)
+		return (-1);
+	token = new_token(str, WORD);
+	free(str);
+	if (!token)
+		return (-1);
+	add_back(tkn_list, token);
+	return (i + 1);
 }
 
 int	tokenize_append(char *line, int i, t_tkn **tkn_list)
