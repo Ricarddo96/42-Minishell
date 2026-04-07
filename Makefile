@@ -8,7 +8,10 @@ LIBFT_LIB = $(LIBFT_DIR)/libft.a
 LIBFT_FLAGS = -L$(LIBFT_DIR) -lft
 
 SRC =	srcs/main.c \
-		srcs/parser/tokenizer.c
+		srcs/parser/tokenizer.c \
+		srcs/parser/validator.c \
+		srcs/parser/expansor.c \
+		srcs/parser/parser.c
 
 OBJ = $(SRC:.c=.o)
 

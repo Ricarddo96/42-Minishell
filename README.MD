@@ -100,7 +100,7 @@ echo '$HOME'         → literal, NO expandir
 Si resuelves bien las comillas en el lexer, el resto fluye. Si las ignoras y las tratas después, todo se complica.
 
 
-**PARA JULIA: HACER LA FUNCIÓN DEL TOKENIZER "tokenizer_quotes"**:
+**PARA BLUKKER: HACER LA FUNCIÓN DEL TOKENIZER "tokenizer_quotes"**:
 
 La función recibe line e i apuntando a la comilla de apertura (" o '). Tiene que devolver la nueva posición de i tras haber creado el token.
 
