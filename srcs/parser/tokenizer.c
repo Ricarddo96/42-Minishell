@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/16 14:05:24 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/07 19:43:57 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/08 13:05:24 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ int	tokenize_quotes(char *line, int i, t_tkn **tkn_list)
 		i++;
 	if (line[i] == '\0')
 		return (-1);
-	while (line[i + 1] && line[i + 1] != '"' && line[i + 1] != 39
+	while (line[i + 1]
 		&& line[i + 1] != '>' && line[i + 1] != '<' && line[i + 1] != '|'
 		&& line[i + 1] != ' ')
 		i++;
