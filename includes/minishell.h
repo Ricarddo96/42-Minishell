@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 12:48:32 by ridoming          #+#    #+#             */
-/*   Updated: 2026/03/18 15:22:02 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/08 19:22:14 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,13 @@ typedef enum e_tkn_type
     REDIR_HEREDOC    // 6 - '<<'
 }   t_tkn_type;
 
+typedef enum e_quote_state
+{
+    NONE,
+    DOUBLE,
+    SINGLE
+}   t_quote_state;
+
 typedef struct s_tkn
 {
     char            *token;
@@ -74,6 +81,6 @@ int		tokenize_word(char *line, int i, t_tkn **tkn_list);
 t_tkn	*tokenize(char *line);
 int		validate(t_tkn *seq);
 int		parser(char *line, char **envp);
-t_tkn	*env_expand(t_tkn *seq, char **envp);
+t_tkn	*env_expand(t_tkn *seq, char **envp); // hay que borrar esta funcion porque lo vamos a hacer directamente en process_token
 
 #endif

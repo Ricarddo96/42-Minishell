@@ -176,3 +176,86 @@ La IA recomienda hacer esto:
     El string resultante para "ho"'la'mundo sería holaMundo — sin comillas, todo unido — y es entonces cuando también puedes hacer el quote stripping de forma natural, porque nunca metes las comillas en el string acumulado.
 
 Basicamente recomienda unir tokenize_word y tokenize_quotes en una funcion que no se pare cuando cierre comillas sino cuando haya un espacio y que pueda tolerar casos como: "hola" -> hola ; blukker"hola" -> blukkerhola ; 'hola '"blukker" -> hola blukker. 
+
+
+**nuevo plan con tokenize_complex_word y process_token**
+
+--->
+
+## Por qué sustituimos tokenize_word y tokenize_quotes
+
+El plan original tenía dos funciones separadas:
+
+- `tokenize_word` — leía caracteres normales hasta encontrar un espacio u operador
+- `tokenize_quotes` — leía desde una comilla de apertura hasta la de cierre
+
+El problema es que ninguna sabía de la existencia de la otra. Para `hola"mundo"`:
+
+1. `tokenize` ve `h` → llama a `tokenize_word`
+2. `tokenize_word` avanza hasta `"` → crea token `hola`, devuelve
+3. `tokenize` ve `"` → llama a `tokenize_quotes`
+4. `tokenize_quotes` crea token `mundo`
+
+Resultado: dos tokens separados. Incorrecto — bash lo trata como uno solo.
+
+---
+
+## El nuevo plan: tokenize_complex_word + process_token
+
+Se divide el trabajo en dos fases limpias:
+
+### Fase 1 — tokenize_complex_word
+
+Lee el troncho completo sin pararse en comillas, solo para cuando encuentra un espacio u operador (`|`, `<`, `>`). Devuelve el raw string tal como está en la línea, comillas incluidas.
+
+```
+hola"mundo"'oo'  →  raw = hola"mundo"'oo'
+"ho"'la'         →  raw = "ho"'la'
+hola             →  raw = hola
+```
+
+El único caso de error que detecta aquí es una comilla sin cerrar (devuelve -1).
+
+### Fase 2 — process_token
+
+Recibe el raw string y lo procesa carácter a carácter con un state machine de tres estados:
+
+```
+NONE   → fuera de comillas
+DOUBLE → dentro de "..."
+SINGLE → dentro de '...'
+```
+
+Reglas por estado:
+
+| Carácter | NONE | DOUBLE | SINGLE |
+|----------|------|--------|--------|
+| `"` | → DOUBLE, no copiar | → NONE, no copiar | copiar literal |
+| `'` | → SINGLE, no copiar | copiar literal | → NONE, no copiar |
+| `$` | expandir variable | expandir variable | copiar `$` literal |
+| otro | copiar | copiar | copiar |
+
+El resultado es un string limpio: sin comillas, con variables expandidas.
+
+```
+hola"mundo"'oo'  →  holamundooo
+"$USER"'literal' →  ricarditoliteralecho
+'$HOME'          →  $HOME   (no expandido)
+```
+
+### Cómo encajan en tokenize
+
+```c
+// antes (incorrecto para tokens mixtos):
+if (line[i] == '"' || line[i] == '\'')
+    i = tokenize_quotes(line, i, tkn_list);
+else if (ft_isprint(line[i]))
+    i = tokenize_word(line, i, tkn_list);
+
+// ahora:
+else if (line[i] != ' ' && line[i] != '|'
+      && line[i] != '<' && line[i] != '>')
+    i = tokenize_complex_word(line, i, tkn_list, envp);
+```
+
+Una sola condición de entrada. `tokenize_complex_word` llama internamente a `process_token` antes de crear el nodo, así que el token que llega al resto del pipeline ya está limpio y expandido.
