@@ -21,6 +21,8 @@
 #include <dirent.h>
 #include <termios.h>
 #include <curses.h>
+#include <time.h>
+
 #include <term.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -78,7 +80,7 @@ int		tokenize_heredoc(char *line, int i, t_tkn **tkn_list);
 int		tokenize_redir_in(char *line, int i, t_tkn **tkn_list);
 int		tokenize_pipe(char *line, int i, t_tkn **tkn_list);
 int		tokenize_word(char *line, int i, t_tkn **tkn_list);
-t_tkn	*tokenize(char *line);
+t_tkn	*tokenize(char *line, char **envp);
 int		validate(t_tkn *seq);
 int		parser(char *line, char **envp);
 t_tkn	*env_expand(t_tkn *seq, char **envp); // hay que borrar esta funcion porque lo vamos a hacer directamente en process_token

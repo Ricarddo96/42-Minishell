@@ -11,8 +11,6 @@
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
-#include <stdlib.h>
-#include <time.h>
 
 t_tkn	*new_token(char *str, t_tkn_type type)
 {
@@ -112,66 +110,6 @@ int	tokenize_pipe(char *line, int i, t_tkn **tkn_list)
 	return (i + 1);
 }
 
-/* int	tokenize_word(char *line, int i, t_tkn **tkn_list)
-{
-	int		start;
-	char	*word;
-	t_tkn	*token;
-
-	start = i;
-	while (line[i] && line[i] != ' '
-		&& line[i] != '|'
-		&& line[i] != '<'
-		&& line[i] != '>')
-		i++;
-	word = ft_substr(line, start, i - start);
-	if (!word)
-		return (-1);
-	token = new_token(word, WORD);
-	free(word);
-	if (!token)
-		return (-1);
-	add_back(tkn_list, token);
-	return (i);
-}
-
-int	tokenize_quotes(char *line, int i, t_tkn **tkn_list)
-{
-	int		start;
-	char	which_quote;
-	char	*str;
-	t_tkn	*token;
-
-	which_quote = line[i];
-	start = i;
-	i++;
-	while (line[i] && line[i] != which_quote)
-		i++;
-	if (line[i] == '\0')
-		return (-1);
-	while (line[i + 1]
-		&& line[i + 1] != '>' && line[i + 1] != '<' && line[i + 1] != '|'
-		&& line[i + 1] != ' ')
-		i++;
-	str = ft_substr(line, start, i - start + 1);
-	if (!str)
-		return (-1);
-	token = new_token(str, WORD);
-	free(str);
-	if (!token)
-		return (-1);
-	add_back(tkn_list, token);
-	if (which_quote == '\'')
-    	token->single_quoted = 1;
-	return (i + 1);
-} */
-
-// para blukker (leer readme)
-int tokenize_complex_word(char *line, int i, t_tkn **tkn_list)
-{
-	return (i + 1);
-}
-
 void append_char(char **clean, char c)
 {
 	int i;
@@ -205,50 +143,113 @@ int expand_var(char *raw, char **clean, char **envp)
 	
 }
 
+// char *process_token(char *raw_token,  char **envp)
+// {
+// 	t_quote_state	state;
+// 	char 			*clean;
+// 	int				i;
+
+// 	i = 0;
+// 	clean = NULL;
+// 	state = NONE;
+// 	while (raw_token[i]) 
+// 	{
+// 		if (state == NONE)
+// 		{
+// 			if (raw_token[i] == '"')
+// 	 			state = DOUBLE;
+// 			else if (raw_token[i] == '\'') 
+// 				state = SINGLE;
+// 			else if (raw_token[i] == '$')
+// 				i = i + expand_var(raw_token + i, &clean, envp);
+// 			else                     
+// 				append_char(&clean, raw_token[i]);
+// 		}
+// 		else if (state == DOUBLE)
+// 		{
+// 			if (raw_token[i] == '"')
+// 				state = NONE;
+// 			else if (raw_token[i] == '$') 
+// 				i = i + expand_var(raw_token + i, &clean, envp);
+// 			else
+// 				append_char(&clean, raw_token[i]);
+// 		}
+// 		else if (state == SINGLE)
+// 		{
+// 			if (raw_token[i] == '\'')
+// 				state = NONE;
+// 			else
+// 			 	append_char(&clean, raw_token[i]);
+// 		}
+// 		i++;
+// 	}
+// 	return (clean);
+// }
+
+/*	Mira este process_token a ver que te parece, que así si tiene las menos de 25 lineas y funciona igual (en principio)
+	En los primeros 4 ifs se mira si el caracter actual es algun tipo de comilla y si ya habia una antes o no,
+	si no habia se pone como que se abre e i++, si sí estaban abiertas las comillas se cierran.
+	Luego se comprueba si es una varible y si quotes no es single, que es la unica vez en la que la varible no se expande
+	y en cualquier otro caso se pone el caracter.
+*/
 char *process_token(char *raw_token,  char **envp)
 {
-	t_quote_state state;
-	char *clean;
-	int i;
+	t_quote_state	quotes;
+	char			*clean;
+	int				i;
 
 	i = 0;
 	clean = NULL;
-	state = NONE;
+	quotes = NONE;
 	while (raw_token[i]) 
 	{
-		if (state == NONE)
-		{
-			if (raw_token[i] == '"')
-				state = DOUBLE;
-			else if (raw_token[i] == '\'') 
-				state = SINGLE;
-			else if (raw_token[i] == '$')
-				i = i + expand_var(raw_token + i, &clean, envp);
-			else                     
-				append_char(&clean, raw_token[i]);
-		}
-		else if (state == DOUBLE)
-		{
-			if (raw_token[i] == '"')
-				state = NONE;
-			else if (raw_token[i] == '$') 
-				i = i + expand_var(raw_token + i, &clean, envp);
-			else
-				append_char(&clean, raw_token[i]);
-		}
-		else if (state == SINGLE)
-		{
-			if (raw_token[i] == '\'')
-				state = NONE;
-			else
-			 	append_char(&clean, raw_token[i]);
-		}
+		if (raw_token[i] == '"' && quotes == NONE)
+			quotes = DOUBLE;
+		else if (raw_token[i] == '/' && quotes == NONE)
+			quotes = SINGLE;
+		else if (raw_token[i] == '"' && quotes == DOUBLE)
+			quotes = NONE;
+		else if (raw_token[i] == '/' && quotes == SINGLE)
+			quotes = NONE;
+		else if (raw_token[i] == '$' && quotes != SINGLE)
+			i = i + expand_var(raw_token + i, &clean, envp);
+		else
+			append_char(&clean, raw_token[i]);
 		i++;
 	}
 	return (clean);
 }
 
-t_tkn	*tokenize(char *line)
+int	tokenize_complex_word(char *line, int i, t_tkn **tkn_list, char **envp)
+{
+	int		start;
+	char	*word;
+	t_tkn	*token;
+	int		vars_in_str;
+
+	start = i;
+	vars_in_str = 0;
+	while (line[i] && line[i] != '<' && line[i] != '>' && line[i] != '|'
+		&& line[i] != ' ')
+	{
+		if (line[i] == '$')
+			vars_in_str = 1;
+		i++;
+	}
+	word = ft_substr(line, start, i - start);
+	if (!word)
+		return (-1);
+	if (vars_in_str)
+		word = process_token(word, envp);
+	token = new_token(word, WORD);
+	free(word);
+	if (!token)
+		return (-1);
+	add_back(tkn_list, token);
+	return (i + 1);
+}
+
+t_tkn	*tokenize(char *line, char **envp)
 {
 	t_tkn	*tkn_list;
 	int		i;
@@ -259,9 +260,9 @@ t_tkn	*tokenize(char *line)
 	{
 		if (line[i] == ' ')
 			i++;
-		else if (line[i] != ' ' && line[i] != '|' 
-				&& line[i] != '<' && line[i] != '>')
-			i = tokenize_complex_word(line, i, &tkn_list);
+		else if (line[i] != ' ' && line[i] != '|'
+			&& line[i] != '<' && line[i] != '>')
+			i = tokenize_complex_word(line, i, &tkn_list, envp);
 		else if (line[i] == '>' && line[i + 1] == '>')
 			i = tokenize_append(line, i, &tkn_list);
 		else if (line[i] == '>')

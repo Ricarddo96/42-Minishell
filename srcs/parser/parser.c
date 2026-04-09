@@ -16,7 +16,7 @@ int	parser(char *line, char **envp)
 {
 	t_tkn	*sequence;
 
-	sequence = tokenize(line);
+	sequence = tokenize(line, envp);
 	if (!validate(sequence))
 		return (0);
 	sequence = env_expand(sequence, envp);
