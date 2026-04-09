@@ -137,12 +137,6 @@ void append_char(char **clean, char c)
 	*clean = tmp;
 }
 
-// todavia por hacer (la hace ricardo)
-int expand_var(char *raw, char **clean, char **envp)
-{
-	
-}
-
 // char *process_token(char *raw_token,  char **envp)
 // {
 // 	t_quote_state	state;
@@ -186,6 +180,42 @@ int expand_var(char *raw, char **clean, char **envp)
 // 	return (clean);
 // }
 
+
+/*	Esto lo que hace es iterar por los strings de envp y solo se pone a iterar en envp cuando la primera letra de un string
+	coincida con la primera de raw, cuando coincide empiezo a iterar mientras raw coincida con envp, sin modificar i,
+	Si al acabar el bucle envp está en '=' qiuiere decir que la variable es esa, hago un break, y empiezo a agregar
+	los chars a raw, devuelvo l que es con lo que he iterado en raw - i, porque la llamada a esta funcion 
+	hace i = i +expand_var, entocnes tengoo que devolver solo lo que iterado en raw, que es l - i
+
+*/
+int expand_var(char *raw, int i, char **clean, char **envp)
+{
+	int j;
+	int k;
+	int	l;
+	
+	j = 0;
+	while (envp[j])
+	{
+		k = 0;
+		if (envp[j][k] == raw[i])
+		{
+			l = i + 1;
+			while (envp[j][k] == raw[l])
+			{
+				k++;
+				l++;
+			}
+			if (envp[j][k] == '=')
+				break ;
+		}
+		j++;
+	}
+	while (envp[j][k + 1] != '\0' )
+		append_char(&clean, envp[j][++k]);
+	return (l - i);
+}
+
 /*	Mira este process_token a ver que te parece, que así si tiene las menos de 25 lineas y funciona igual (en principio)
 	En los primeros 4 ifs se mira si el caracter actual es algun tipo de comilla y si ya habia una antes o no,
 	si no habia se pone como que se abre e i++, si sí estaban abiertas las comillas se cierran.
@@ -212,7 +242,7 @@ char *process_token(char *raw_token,  char **envp)
 		else if (raw_token[i] == '/' && quotes == SINGLE)
 			quotes = NONE;
 		else if (raw_token[i] == '$' && quotes != SINGLE)
-			i = i + expand_var(raw_token + i, &clean, envp);
+			i += expand_var(raw_token, i, &clean, envp);
 		else
 			append_char(&clean, raw_token[i]);
 		i++;
