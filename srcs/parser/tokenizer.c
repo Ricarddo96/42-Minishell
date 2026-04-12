@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/16 14:05:24 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/08 20:32:55 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/12 15:59:12 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,50 +137,6 @@ void append_char(char **clean, char c)
 	*clean = tmp;
 }
 
-// char *process_token(char *raw_token,  char **envp)
-// {
-// 	t_quote_state	state;
-// 	char 			*clean;
-// 	int				i;
-
-// 	i = 0;
-// 	clean = NULL;
-// 	state = NONE;
-// 	while (raw_token[i]) 
-// 	{
-// 		if (state == NONE)
-// 		{
-// 			if (raw_token[i] == '"')
-// 	 			state = DOUBLE;
-// 			else if (raw_token[i] == '\'') 
-// 				state = SINGLE;
-// 			else if (raw_token[i] == '$')
-// 				i = i + expand_var(raw_token + i, &clean, envp);
-// 			else                     
-// 				append_char(&clean, raw_token[i]);
-// 		}
-// 		else if (state == DOUBLE)
-// 		{
-// 			if (raw_token[i] == '"')
-// 				state = NONE;
-// 			else if (raw_token[i] == '$') 
-// 				i = i + expand_var(raw_token + i, &clean, envp);
-// 			else
-// 				append_char(&clean, raw_token[i]);
-// 		}
-// 		else if (state == SINGLE)
-// 		{
-// 			if (raw_token[i] == '\'')
-// 				state = NONE;
-// 			else
-// 			 	append_char(&clean, raw_token[i]);
-// 		}
-// 		i++;
-// 	}
-// 	return (clean);
-// }
-
-
 /*	Esto lo que hace es iterar por los strings de envp y solo se pone a iterar en envp cuando la primera letra de un string
 	coincida con la primera de raw, cuando coincide empiezo a iterar mientras raw coincida con envp, sin modificar i,
 	Si al acabar el bucle envp está en '=' qiuiere decir que la variable es esa, hago un break, y empiezo a agregar
@@ -188,17 +144,18 @@ void append_char(char **clean, char c)
 	hace i = i +expand_var, entocnes tengoo que devolver solo lo que iterado en raw, que es l - i
 
 */
-int expand_var(char *raw, int i, char **clean, char **envp)
+/* int expand_var(char *raw, int i, char **clean, char **envp)
 {
 	int j;
 	int k;
 	int	l;
 	
 	j = 0;
+	l = 0;
 	while (envp[j])
 	{
 		k = 0;
-		if (envp[j][k] == raw[i])
+		if (envp[j][k] == raw[i + 1])
 		{
 			l = i + 1;
 			while (envp[j][k] == raw[l])
@@ -212,9 +169,60 @@ int expand_var(char *raw, int i, char **clean, char **envp)
 		j++;
 	}
 	while (envp[j][k + 1] != '\0' )
-		append_char(&clean, envp[j][++k]);
+		append_char(clean, envp[j][++k]);
 	return (l - i);
+} */
+void append_expanded(char *envp_str, int equal_index, char **clean)
+{
+	int i;
+
+	i = equal_index + 1;
+	while (envp_str[i]) 
+	{
+		append_char(clean, envp_str[i]);
+		i++;
+	}
 }
+int var_not_found(int i, int equal_index, char *raw)
+{
+	while (raw[i + 1 + equal_index]
+		&& (ft_isalnum(raw[i + 1 + equal_index])
+			|| raw[i + 1 + equal_index] == '_'))
+		equal_index++;
+	return (equal_index);
+}
+
+// hay que revisar si hay que expandir tambien $? que es el exit status del último comando ejecutado 
+
+int expand_var(char *raw, int i, char **clean, char **envp)
+{
+	int	j;
+	int	equal_index;
+
+	j = 0;
+	if (!raw[i + 1] || (!ft_isalpha(raw[i + 1]) && raw[i + 1] != '_')) 
+		return (0);
+	while (envp[j])
+	{
+		equal_index = 0;
+		if (envp[j][0] == raw[i + 1])
+		{
+			while (envp[j][equal_index] != '=')
+				equal_index++;
+			if (ft_strncmp(raw + (i + 1), envp[j], equal_index) == 0
+				&& !ft_isalnum(raw[i + 1 + equal_index])
+				&& raw[i + 1 + equal_index] != '_') // Comprueba que el nombre coincide Y que en raw el nombre termina ahi (evita que $AB haga match con A=blukker)
+			{
+				append_expanded(envp[j], equal_index, clean);
+				return (equal_index);
+			}
+		}
+		j++;
+	}
+	equal_index = var_not_found(i, equal_index, raw); // Variable no encontrada en envp: calcula la longitud del nombre sin escribir nada en clean. Por lo visto si, no hay coincidencia no escribimos ni siquiera el nombre de la variable, bash lo salta directamente
+	return (equal_index);
+}
+
 
 /*	Mira este process_token a ver que te parece, que así si tiene las menos de 25 lineas y funciona igual (en principio)
 	En los primeros 4 ifs se mira si el caracter actual es algun tipo de comilla y si ya habia una antes o no,
@@ -235,11 +243,11 @@ char *process_token(char *raw_token,  char **envp)
 	{
 		if (raw_token[i] == '"' && quotes == NONE)
 			quotes = DOUBLE;
-		else if (raw_token[i] == '/' && quotes == NONE)
+		else if (raw_token[i] == '\'' && quotes == NONE)
 			quotes = SINGLE;
 		else if (raw_token[i] == '"' && quotes == DOUBLE)
 			quotes = NONE;
-		else if (raw_token[i] == '/' && quotes == SINGLE)
+		else if (raw_token[i] == '\'' && quotes == SINGLE)
 			quotes = NONE;
 		else if (raw_token[i] == '$' && quotes != SINGLE)
 			i += expand_var(raw_token, i, &clean, envp);
@@ -250,33 +258,42 @@ char *process_token(char *raw_token,  char **envp)
 	return (clean);
 }
 
+void	vars_in_str(char **word, char **envp)
+{
+	char	*tmp;
+
+	tmp = process_token(*word, envp);
+	free(*word);
+	*word = tmp;
+}
+
 int	tokenize_complex_word(char *line, int i, t_tkn **tkn_list, char **envp)
 {
 	int		start;
 	char	*word;
 	t_tkn	*token;
-	int		vars_in_str;
+	int		has_var;
 
 	start = i;
-	vars_in_str = 0;
+	has_var = 0;
 	while (line[i] && line[i] != '<' && line[i] != '>' && line[i] != '|'
 		&& line[i] != ' ')
 	{
 		if (line[i] == '$')
-			vars_in_str = 1;
+			has_var = 1;
 		i++;
 	}
 	word = ft_substr(line, start, i - start);
 	if (!word)
 		return (-1);
-	if (vars_in_str)
-		word = process_token(word, envp);
+	if (has_var)
+		vars_in_str(&word, envp);
 	token = new_token(word, WORD);
 	free(word);
 	if (!token)
 		return (-1);
 	add_back(tkn_list, token);
-	return (i + 1);
+	return (i);
 }
 
 t_tkn	*tokenize(char *line, char **envp)
@@ -290,8 +307,7 @@ t_tkn	*tokenize(char *line, char **envp)
 	{
 		if (line[i] == ' ')
 			i++;
-		else if (line[i] != ' ' && line[i] != '|'
-			&& line[i] != '<' && line[i] != '>')
+		else if (line[i] != ' ' && line[i] != '|' && line[i] != '<' && line[i] != '>')
 			i = tokenize_complex_word(line, i, &tkn_list, envp);
 		else if (line[i] == '>' && line[i + 1] == '>')
 			i = tokenize_append(line, i, &tkn_list);
@@ -303,6 +319,8 @@ t_tkn	*tokenize(char *line, char **envp)
 			i = tokenize_redir_in(line, i, &tkn_list);
 		else if (line[i] == '|')
 			i = tokenize_pipe(line, i, &tkn_list);
+		if (i < 0)
+			return (NULL);
 	}
 	return (tkn_list);
 }

@@ -32,7 +32,6 @@
 #include <readline/history.h>
 #include "../libft/libft.h"
 
-
 // lo ideal es que el parser rellene una *lista enlazada* donde cada nodo sea un comando separado por un pipe.
 
 typedef enum e_tkn_type
@@ -73,16 +72,13 @@ typedef struct s_cmd
 
 t_tkn	*new_token(char *str, t_tkn_type type);
 void	add_back(t_tkn **head, t_tkn *new_tkn);
-int		tokenize_quotes(char *line, int i, t_tkn **tkn_list);
 int		tokenize_append(char *line, int i, t_tkn **tkn_list);
 int		tokenize_redir_out(char *line, int i, t_tkn **tkn_list);
 int		tokenize_heredoc(char *line, int i, t_tkn **tkn_list);
 int		tokenize_redir_in(char *line, int i, t_tkn **tkn_list);
 int		tokenize_pipe(char *line, int i, t_tkn **tkn_list);
-int		tokenize_word(char *line, int i, t_tkn **tkn_list);
 t_tkn	*tokenize(char *line, char **envp);
 int		validate(t_tkn *seq);
 int		parser(char *line, char **envp);
-t_tkn	*env_expand(t_tkn *seq, char **envp); // hay que borrar esta funcion porque lo vamos a hacer directamente en process_token
 
 #endif
