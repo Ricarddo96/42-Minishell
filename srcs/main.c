@@ -15,14 +15,18 @@
 int	main(int argc, char **argv, char **envp)
 {
 	char	*line;
+	t_sh	mini;	
 
 	(void)argc;
 	(void)argv;
+	mini.exit_status = 0;
+	mini.tkn_list = NULL;
+	mini.envp = envp;
 	while (1)
 	{
 		line = readline("Prompt >> ");
 		add_history(line);
-		parser(line, envp);
+		parser(line, mini);
 		free(line);
 	}
 	return (0);

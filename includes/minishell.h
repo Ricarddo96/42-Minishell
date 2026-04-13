@@ -70,6 +70,13 @@ typedef struct s_cmd
 	struct s_cmd	*next;
 }	t_cmd;
 
+typedef struct s_minishell
+{
+    int     exit_status;
+    t_tkn   *tkn_list;
+    char    **envp;
+}   t_sh;
+
 t_tkn	*new_token(char *str, t_tkn_type type);
 void	add_back(t_tkn **head, t_tkn *new_tkn);
 int		tokenize_append(char *line, int i, t_tkn **tkn_list);
@@ -77,8 +84,8 @@ int		tokenize_redir_out(char *line, int i, t_tkn **tkn_list);
 int		tokenize_heredoc(char *line, int i, t_tkn **tkn_list);
 int		tokenize_redir_in(char *line, int i, t_tkn **tkn_list);
 int		tokenize_pipe(char *line, int i, t_tkn **tkn_list);
-t_tkn	*tokenize(char *line, char **envp);
+t_tkn	*tokenize(char *line, t_sh mini);
 int		validate(t_tkn *seq);
-int		parser(char *line, char **envp);
+int		parser(char *line, t_sh mini);
 
 #endif

@@ -110,7 +110,7 @@ int	tokenize_pipe(char *line, int i, t_tkn **tkn_list)
 	return (i + 1);
 }
 
-void append_char(char **clean, char c)
+static void append_char(char **clean, char c)
 {
 	int i;
 	int j;
@@ -137,42 +137,7 @@ void append_char(char **clean, char c)
 	*clean = tmp;
 }
 
-/*	Esto lo que hace es iterar por los strings de envp y solo se pone a iterar en envp cuando la primera letra de un string
-	coincida con la primera de raw, cuando coincide empiezo a iterar mientras raw coincida con envp, sin modificar i,
-	Si al acabar el bucle envp está en '=' qiuiere decir que la variable es esa, hago un break, y empiezo a agregar
-	los chars a raw, devuelvo l que es con lo que he iterado en raw - i, porque la llamada a esta funcion 
-	hace i = i +expand_var, entocnes tengoo que devolver solo lo que iterado en raw, que es l - i
-
-*/
-/* int expand_var(char *raw, int i, char **clean, char **envp)
-{
-	int j;
-	int k;
-	int	l;
-	
-	j = 0;
-	l = 0;
-	while (envp[j])
-	{
-		k = 0;
-		if (envp[j][k] == raw[i + 1])
-		{
-			l = i + 1;
-			while (envp[j][k] == raw[l])
-			{
-				k++;
-				l++;
-			}
-			if (envp[j][k] == '=')
-				break ;
-		}
-		j++;
-	}
-	while (envp[j][k + 1] != '\0' )
-		append_char(clean, envp[j][++k]);
-	return (l - i);
-} */
-void append_expanded(char *envp_str, int equal_index, char **clean)
+static void append_expanded(char *envp_str, int equal_index, char **clean)
 {
 	int i;
 
@@ -183,7 +148,7 @@ void append_expanded(char *envp_str, int equal_index, char **clean)
 		i++;
 	}
 }
-int var_not_found(int i, int equal_index, char *raw)
+static int var_not_found(int i, int equal_index, char *raw)
 {
 	while (raw[i + 1 + equal_index]
 		&& (ft_isalnum(raw[i + 1 + equal_index])
@@ -192,45 +157,34 @@ int var_not_found(int i, int equal_index, char *raw)
 	return (equal_index);
 }
 
-// hay que revisar si hay que expandir tambien $? que es el exit status del último comando ejecutado 
-
-int expand_var(char *raw, int i, char **clean, char **envp)
+static int check_in_envp(char *raw, int i, char **clean, t_sh *mini)
 {
 	int	j;
 	int	equal_index;
 
 	j = 0;
-	if (!raw[i + 1] || (!ft_isalpha(raw[i + 1]) && raw[i + 1] != '_')) 
-		return (0);
-	while (envp[j])
+	while (mini->envp[j])
 	{
 		equal_index = 0;
-		if (envp[j][0] == raw[i + 1])
+		if (mini->envp[j][0] == raw[i + 1])
 		{
-			while (envp[j][equal_index] != '=')
+			while (mini->envp[j][equal_index] != '=')
 				equal_index++;
-			if (ft_strncmp(raw + (i + 1), envp[j], equal_index) == 0
+			if (ft_strncmp(raw + (i + 1), mini->envp[j], equal_index) == 0
 				&& !ft_isalnum(raw[i + 1 + equal_index])
-				&& raw[i + 1 + equal_index] != '_') // Comprueba que el nombre coincide Y que en raw el nombre termina ahi (evita que $AB haga match con A=blukker)
+				&& raw[i + 1 + equal_index] != '_')
 			{
-				append_expanded(envp[j], equal_index, clean);
+				append_expanded(mini->envp[j], equal_index, clean);
 				return (equal_index);
 			}
 		}
 		j++;
 	}
-	equal_index = var_not_found(i, equal_index, raw); // Variable no encontrada en envp: calcula la longitud del nombre sin escribir nada en clean. Por lo visto si, no hay coincidencia no escribimos ni siquiera el nombre de la variable, bash lo salta directamente
+	equal_index = var_not_found(i, equal_index, raw); 
 	return (equal_index);
 }
 
-
-/*	Mira este process_token a ver que te parece, que así si tiene las menos de 25 lineas y funciona igual (en principio)
-	En los primeros 4 ifs se mira si el caracter actual es algun tipo de comilla y si ya habia una antes o no,
-	si no habia se pone como que se abre e i++, si sí estaban abiertas las comillas se cierran.
-	Luego se comprueba si es una varible y si quotes no es single, que es la unica vez en la que la varible no se expande
-	y en cualquier otro caso se pone el caracter.
-*/
-char *process_token(char *raw_token,  char **envp)
+static char *process_token(char *raw_token, t_sh *mini)
 {
 	t_quote_state	quotes;
 	char			*clean;
@@ -250,7 +204,7 @@ char *process_token(char *raw_token,  char **envp)
 		else if (raw_token[i] == '\'' && quotes == SINGLE)
 			quotes = NONE;
 		else if (raw_token[i] == '$' && quotes != SINGLE)
-			i += expand_var(raw_token, i, &clean, envp);
+			i += check_in_envp(raw_token, i, &clean, mini);
 		else
 			append_char(&clean, raw_token[i]);
 		i++;
@@ -258,16 +212,16 @@ char *process_token(char *raw_token,  char **envp)
 	return (clean);
 }
 
-void	vars_in_str(char **word, char **envp)
+static void	vars_in_str(char **word, t_sh *mini)
 {
 	char	*tmp;
 
-	tmp = process_token(*word, envp);
+	tmp = process_token(*word, mini);
 	free(*word);
 	*word = tmp;
 }
 
-int	tokenize_complex_word(char *line, int i, t_tkn **tkn_list, char **envp)
+static int	tokenize_complex_word(char *line, int i, t_sh *mini)
 {
 	int		start;
 	char	*word;
@@ -287,40 +241,38 @@ int	tokenize_complex_word(char *line, int i, t_tkn **tkn_list, char **envp)
 	if (!word)
 		return (-1);
 	if (has_var)
-		vars_in_str(&word, envp);
+		vars_in_str(&word, mini);
 	token = new_token(word, WORD);
 	free(word);
 	if (!token)
 		return (-1);
-	add_back(tkn_list, token);
+	add_back(&mini->tkn_list, token);
 	return (i);
 }
 
-t_tkn	*tokenize(char *line, char **envp)
+t_tkn	*tokenize(char *line, t_sh mini)
 {
-	t_tkn	*tkn_list;
 	int		i;
 
-	tkn_list = NULL;
 	i = 0;
 	while (line[i])
 	{
 		if (line[i] == ' ')
 			i++;
-		else if (line[i] != ' ' && line[i] != '|' && line[i] != '<' && line[i] != '>')
-			i = tokenize_complex_word(line, i, &tkn_list, envp);
 		else if (line[i] == '>' && line[i + 1] == '>')
-			i = tokenize_append(line, i, &tkn_list);
+			i = tokenize_append(line, i, &mini.tkn_list);
 		else if (line[i] == '>')
-			i = tokenize_redir_out(line, i, &tkn_list);
+			i = tokenize_redir_out(line, i, &mini.tkn_list);
 		else if (line[i] == '<' && line[i + 1] == '<')
-			i = tokenize_heredoc(line, i, &tkn_list);
+			i = tokenize_heredoc(line, i, &mini.tkn_list);
 		else if (line[i] == '<')
-			i = tokenize_redir_in(line, i, &tkn_list);
+			i = tokenize_redir_in(line, i, &mini.tkn_list);
 		else if (line[i] == '|')
-			i = tokenize_pipe(line, i, &tkn_list);
+			i = tokenize_pipe(line, i, &mini.tkn_list);
+		else
+			i = tokenize_complex_word(line, i, &mini);
 		if (i < 0)
 			return (NULL);
 	}
-	return (tkn_list);
+	return (mini.tkn_list);
 }

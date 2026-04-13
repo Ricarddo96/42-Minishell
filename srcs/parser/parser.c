@@ -12,12 +12,15 @@
 
 #include "../../includes/minishell.h"
 
-int	parser(char *line, char **envp)
+int	parser(char *line, t_sh mini)
 {
-	t_tkn	*sequence;
-
-	sequence = tokenize(line, envp);
-	if (!validate(sequence))
+	mini.tkn_list = tokenize(line, mini);
+	while (mini.tkn_list != NULL)
+	{
+		printf("%s\n", mini.tkn_list->token);
+		mini.tkn_list = mini.tkn_list->next;
+	}
+	if (!validate(mini.tkn_list))
 		return (0);
 	return (EXIT_SUCCESS);
 }
