@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 12:48:32 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/08 19:22:14 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/14 13:43:51 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,8 +84,10 @@ int		tokenize_redir_out(char *line, int i, t_tkn **tkn_list);
 int		tokenize_heredoc(char *line, int i, t_tkn **tkn_list);
 int		tokenize_redir_in(char *line, int i, t_tkn **tkn_list);
 int		tokenize_pipe(char *line, int i, t_tkn **tkn_list);
-t_tkn	*tokenize(char *line, t_sh mini);
-int		validate(t_tkn *seq);
-int		parser(char *line, t_sh mini);
+t_tkn	*tokenize(char *line, t_sh *mini);
+int		validate_quotes(char *line);
+int		validate(t_tkn *seq, t_sh *mini);
+int		parser(char *line, t_sh *mini);
+void	expand(t_tkn *seq, t_sh *mini);
 
 #endif

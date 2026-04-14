@@ -6,21 +6,32 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/19 16:58:24 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/12 15:30:47 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/14 13:44:06 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-int	parser(char *line, t_sh mini)
+int	parser(char *line, t_sh *mini)
 {
-	mini.tkn_list = tokenize(line, mini);
-	while (mini.tkn_list != NULL)
+	t_tkn	*tmp;
+
+	if (!validate_quotes(line))
 	{
-		printf("%s\n", mini.tkn_list->token);
-		mini.tkn_list = mini.tkn_list->next;
-	}
-	if (!validate(mini.tkn_list))
+		mini->exit_status = 2;
 		return (0);
-	return (EXIT_SUCCESS);
+	}
+	mini->tkn_list = tokenize(line, mini);
+	if (!mini->tkn_list)
+		return (0);
+	if (!validate(mini->tkn_list, mini))
+		return (0);
+	expand(mini->tkn_list, mini);
+	tmp = mini->tkn_list;
+	while (tmp != NULL)
+	{
+		printf("%s\n", tmp->token);
+		tmp = tmp->next;
+	}
+	return (1);
 }

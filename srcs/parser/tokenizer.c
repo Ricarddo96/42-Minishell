@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/16 14:05:24 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/12 15:59:12 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/14 13:05:44 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,169 +110,74 @@ int	tokenize_pipe(char *line, int i, t_tkn **tkn_list)
 	return (i + 1);
 }
 
-static void append_char(char **clean, char c)
+static int	is_word_end(char c, t_quote_state qstate)
 {
-	int i;
-	int j;
-	char *tmp;
-	
-	i = 0;
-	j = 0;
-	tmp = NULL;
-	if (*clean == NULL)
-	{
-		tmp = malloc(1 * sizeof(char) + 1);
-		tmp[i] = c;
-		tmp[i + 1] = '\0';
-	}
-	else 
-	{
-		tmp = malloc(ft_strlen(*clean) + 2);
-		while ((*clean)[i])
-			tmp[j++] = (*clean)[i++];
-		tmp[j] = c;
-		tmp[j + 1] = '\0';	
-	}
-	free(*clean);
-	*clean = tmp;
+	if (qstate != NONE)
+		return (0);
+	return (c == ' ' || c == '\t' || c == '<' || c == '>'
+		|| c == '|');
 }
 
-static void append_expanded(char *envp_str, int equal_index, char **clean)
+static void	update_quote_state(char c, t_quote_state *qstate)
 {
-	int i;
-
-	i = equal_index + 1;
-	while (envp_str[i]) 
-	{
-		append_char(clean, envp_str[i]);
-		i++;
-	}
-}
-static int var_not_found(int i, int equal_index, char *raw)
-{
-	while (raw[i + 1 + equal_index]
-		&& (ft_isalnum(raw[i + 1 + equal_index])
-			|| raw[i + 1 + equal_index] == '_'))
-		equal_index++;
-	return (equal_index);
+	if (c == '\'' && *qstate == NONE)
+		*qstate = SINGLE;
+	else if (c == '\'' && *qstate == SINGLE)
+		*qstate = NONE;
+	else if (c == '"' && *qstate == NONE)
+		*qstate = DOUBLE;
+	else if (c == '"' && *qstate == DOUBLE)
+		*qstate = NONE;
 }
 
-static int check_in_envp(char *raw, int i, char **clean, t_sh *mini)
+static int	tokenize_complex_word(char *line, int i, t_tkn **tkn_list)
 {
-	int	j;
-	int	equal_index;
-
-	j = 0;
-	while (mini->envp[j])
-	{
-		equal_index = 0;
-		if (mini->envp[j][0] == raw[i + 1])
-		{
-			while (mini->envp[j][equal_index] != '=')
-				equal_index++;
-			if (ft_strncmp(raw + (i + 1), mini->envp[j], equal_index) == 0
-				&& !ft_isalnum(raw[i + 1 + equal_index])
-				&& raw[i + 1 + equal_index] != '_')
-			{
-				append_expanded(mini->envp[j], equal_index, clean);
-				return (equal_index);
-			}
-		}
-		j++;
-	}
-	equal_index = var_not_found(i, equal_index, raw); 
-	return (equal_index);
-}
-
-static char *process_token(char *raw_token, t_sh *mini)
-{
-	t_quote_state	quotes;
-	char			*clean;
-	int				i;
-
-	i = 0;
-	clean = NULL;
-	quotes = NONE;
-	while (raw_token[i]) 
-	{
-		if (raw_token[i] == '"' && quotes == NONE)
-			quotes = DOUBLE;
-		else if (raw_token[i] == '\'' && quotes == NONE)
-			quotes = SINGLE;
-		else if (raw_token[i] == '"' && quotes == DOUBLE)
-			quotes = NONE;
-		else if (raw_token[i] == '\'' && quotes == SINGLE)
-			quotes = NONE;
-		else if (raw_token[i] == '$' && quotes != SINGLE)
-			i += check_in_envp(raw_token, i, &clean, mini);
-		else
-			append_char(&clean, raw_token[i]);
-		i++;
-	}
-	return (clean);
-}
-
-static void	vars_in_str(char **word, t_sh *mini)
-{
-	char	*tmp;
-
-	tmp = process_token(*word, mini);
-	free(*word);
-	*word = tmp;
-}
-
-static int	tokenize_complex_word(char *line, int i, t_sh *mini)
-{
-	int		start;
-	char	*word;
-	t_tkn	*token;
-	int		has_var;
+	int				start;
+	char			*word;
+	t_tkn			*token;
+	t_quote_state	qstate;
 
 	start = i;
-	has_var = 0;
-	while (line[i] && line[i] != '<' && line[i] != '>' && line[i] != '|'
-		&& line[i] != ' ')
+	qstate = NONE;
+	while (line[i] && !is_word_end(line[i], qstate))
 	{
-		if (line[i] == '$')
-			has_var = 1;
+		update_quote_state(line[i], &qstate);
 		i++;
 	}
 	word = ft_substr(line, start, i - start);
 	if (!word)
 		return (-1);
-	if (has_var)
-		vars_in_str(&word, mini);
 	token = new_token(word, WORD);
 	free(word);
 	if (!token)
 		return (-1);
-	add_back(&mini->tkn_list, token);
+	add_back(tkn_list, token);
 	return (i);
 }
 
-t_tkn	*tokenize(char *line, t_sh mini)
+t_tkn	*tokenize(char *line, t_sh *mini)
 {
 	int		i;
 
 	i = 0;
 	while (line[i])
 	{
-		if (line[i] == ' ')
+		if (line[i] == ' ' || line[i] == '\t')
 			i++;
 		else if (line[i] == '>' && line[i + 1] == '>')
-			i = tokenize_append(line, i, &mini.tkn_list);
+			i = tokenize_append(line, i, &mini->tkn_list);
 		else if (line[i] == '>')
-			i = tokenize_redir_out(line, i, &mini.tkn_list);
+			i = tokenize_redir_out(line, i, &mini->tkn_list);
 		else if (line[i] == '<' && line[i + 1] == '<')
-			i = tokenize_heredoc(line, i, &mini.tkn_list);
+			i = tokenize_heredoc(line, i, &mini->tkn_list);
 		else if (line[i] == '<')
-			i = tokenize_redir_in(line, i, &mini.tkn_list);
+			i = tokenize_redir_in(line, i, &mini->tkn_list);
 		else if (line[i] == '|')
-			i = tokenize_pipe(line, i, &mini.tkn_list);
+			i = tokenize_pipe(line, i, &mini->tkn_list);
 		else
-			i = tokenize_complex_word(line, i, &mini);
+			i = tokenize_complex_word(line, i, &mini->tkn_list);
 		if (i < 0)
 			return (NULL);
 	}
-	return (mini.tkn_list);
+	return (mini->tkn_list);
 }

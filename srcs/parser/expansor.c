@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/18 15:13:33 by ridoming          #+#    #+#             */
-/*   Updated: 2026/03/19 16:52:47 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/14 13:45:16 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,21 +27,23 @@ static char	*get_var_name(char *token, int *i)
 	return (ft_substr(token, start, *i - start));
 }
 
-static char	*get_var_value(char *name, char **envp)
+static char	*get_var_value(char *name, t_sh *mini)
 {
 	int	name_len;
 	int	j;
 
+	if (ft_strncmp(name, "?", 2) == 0)
+		return (ft_itoa(mini->exit_status));
 	name_len = ft_strlen(name);
 	j = 0;
-	while (envp[j])
+	while (mini->envp[j])
 	{
-		if (ft_strncmp(envp[j], name, name_len) == 0
-			&& envp[j][name_len] == '=')
-			return (envp[j] + name_len + 1);
+		if (ft_strncmp(mini->envp[j], name, name_len) == 0
+			&& mini->envp[j][name_len] == '=')
+			return (ft_strdup(mini->envp[j] + name_len + 1));
 		j++;
 	}
-	return ("");
+	return (ft_strdup(""));
 }
 
 static char	*append_literal(char *result, char *token, int start, int end)
@@ -56,64 +58,94 @@ static char	*append_literal(char *result, char *token, int start, int end)
 	return (tmp);
 }
 
-static char	*append_var(char *result, char *token, int *i, char **envp)
+static char	*append_var(char *result, char *token, int *i, t_sh *mini)
 {
 	char	*name;
+	char	*value;
 	char	*tmp;
 
 	(*i)++;
+	if (!token[*i] || (!ft_isalnum(token[*i]) && token[*i] != '_'
+			&& token[*i] != '?'))
+	{
+		tmp = ft_strjoin(result, "$");
+		free(result);
+		return (tmp);
+	}
 	name = get_var_name(token, i);
 	if (!name)
 	{
 		free(result);
 		return (NULL);
 	}
-	tmp = ft_strjoin(result, get_var_value(name, envp));
+	value = get_var_value(name, mini);
 	free(name);
+	tmp = ft_strjoin(result, value);
+	free(value);
 	free(result);
 	return (tmp);
 }
 
-char	*expand_token(char *token, char **envp)
+static int	is_quote_char(char c)
+{
+	return (c == '\'' || c == '"');
+}
+
+static void	update_qstate(char c, t_quote_state *qstate)
+{
+	if (c == '\'' && *qstate == NONE)
+		*qstate = SINGLE;
+	else if (c == '\'' && *qstate == SINGLE)
+		*qstate = NONE;
+	else if (c == '"' && *qstate == NONE)
+		*qstate = DOUBLE;
+	else if (c == '"' && *qstate == DOUBLE)
+		*qstate = NONE;
+}
+
+char	*expand_token(char *token, t_sh *mini)
 {
 	char	*result;
 	int		i;
 	int		start;
+	t_quote_state qstate;
 
 	result = ft_strdup("");
 	i = 0;
+	qstate = NONE;
 	while (token[i])
 	{
 		start = i;
-		while (token[i] && token[i] != '$')
+		while (token[i] && !(token[i] == '$' && qstate != SINGLE)
+			&& !is_quote_char(token[i]))
 			i++;
 		if (i > start)
 			result = append_literal(result, token, start, i);
-		if (token[i] == '$')
-			result = append_var(result, token, &i, envp);
+		if (token[i] == '\'' || token[i] == '"')
+			update_qstate(token[i++], &qstate);
+		else if (token[i] == '$' && qstate != SINGLE)
+			result = append_var(result, token, &i, mini);
 		if (!result)
 			return (NULL);
 	}
 	return (result);
 }
 
-t_tkn	*env_expand(t_tkn *seq, char **envp)
+void	expand(t_tkn *seq, t_sh *mini)
 {
-	t_tkn	*head;
 	char	*expanded;
 
-	head = seq;
-	while(seq)
+	while (seq)
 	{
-		if (!seq->single_quoted && ft_strchr(seq->token, '$'))
+		if (seq->type == WORD)
 		{
-			expanded = expand_token(seq->token, envp);
-			if (!expanded)
-				return (NULL);
-			free(seq->token);
-			seq->token = expanded;
+			expanded = expand_token(seq->token, mini);
+			if (expanded)
+			{
+				free(seq->token);
+				seq->token = expanded;
+			}
 		}
 		seq = seq->next;
 	}
-	return (head);
 }

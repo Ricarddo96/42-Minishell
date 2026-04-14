@@ -259,3 +259,9 @@ else if (line[i] != ' ' && line[i] != '|'
 ```
 
 Una sola condición de entrada. `tokenize_complex_word` llama internamente a `process_token` antes de crear el nodo, así que el token que llega al resto del pipeline ya está limpio y expandido.
+
+
+
+---
+
+
