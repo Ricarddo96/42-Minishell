@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/16 14:05:24 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/14 13:05:44 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/14 16:16:39 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ t_tkn	*new_token(char *str, t_tkn_type type)
 		return (NULL);
 	}
 	node->type = type;
-	node->single_quoted = 0; // marcamos por defecto que no tiene comillas simples, en tokenize_quotes despues de llamar a esta funcion habra que hacer node->single_quoted = 1; (esto es porque no se deben expandir variables con comillas simples)
 	node->next = NULL;
 	node->prev = NULL;
 	return (node);

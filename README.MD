@@ -100,168 +100,105 @@ echo '$HOME'         → literal, NO expandir
 Si resuelves bien las comillas en el lexer, el resto fluye. Si las ignoras y las tratas después, todo se complica.
 
 
-**PARA BLUKKER: HACER LA FUNCIÓN DEL TOKENIZER "tokenizer_quotes"**:
-
-La función recibe line e i apuntando a la comilla de apertura (" o '). Tiene que devolver la nueva posición de i tras haber creado el token.
-
-Paso 1 — Guardar qué tipo de comilla abrió
-line[i] es " o '. Guárdalo en una variable char quote antes de avanzar. Lo necesitarás para saber cuándo cierra.
-
-Paso 2 — Avanzar pasando la comilla de apertura
-i++ para no incluirla en el token.
-
-Paso 3 — Guardar la posición de inicio del contenido
-start = i. El contenido del token empieza aquí.
-
-Paso 4 — Avanzar hasta encontrar la comilla de cierre
-while que avance mientras line[i] no sea quote y no sea \0. Al salir del while tienes dos casos:
-
-line[i] == quote → comilla cerrada correctamente
-line[i] == '\0' → comilla sin cerrar → error, devuelve -1
-Paso 5 — Extraer el substring entre comillas
-Con ft_substr(line, start, i - start) obtienes el contenido sin las comillas.
-
-Paso 6 — Crear el token y añadirlo a la lista
-Igual que en tokenize_word: new_token(word, WORD), free(word), comprobar NULL, add_back.
-
-Paso 7 — Avanzar pasando la comilla de cierre
-i++ para no procesar la comilla de cierre como parte del siguiente token.
-
-Paso 8 — Devolver i
-La nueva posición para que tokenize continúe desde ahí.
-
-Caso especial importante
-¿Qué pasa con "hola"mundo? Después de cerrar las comillas, si el siguiente carácter no es espacio ni operador, sigue siendo el mismo token. Por ahora puedes ignorarlo e implementarlo después, pero tenlo en mente.
-
-**comentarios a tokenizer_quote** 
-
-la funcion tokenize recibe -1 de esta función y hace i = -1. Eso hay que manejarlo en el bucle principal de tokenize para que falle porque si no va a leer la linea desde la posicion -1 lo que va a hacer que pete.
-
-tal como esta ahora construimos el token con las comillas incluidas ("hola" seria el token, no hola), lo cual no es un problema porque lo vamos a limpiar más adelante. No lo limpiamos en esta funcion porque tenemos que ocuparnos del caso de la fusion de tokens adyacentes y lo podemos hacer en esa funcion.
-
-Lo de la fusion de tokens eplicado por la ia:
-
-    Qué es la fusión de tokens adyacentes
-    En bash, las comillas no son delimitadores de tokens — son modificadores de cómo se interpreta el texto. Todo lo que esté pegado sin espacio forma un único token, independientemente de cuántas comillas haya por el medio.
-
-    Ejemplos reales en bash:
-
-    echo "hola"mundo        → un argumento: hola mundo (sin comillas)
-    echo hola"mundo"        → un argumento: holamundo
-    echo "ho"'la'           → un argumento: hola
-    echo "$USER"'literal'   → un argumento: ricarditoliteralecho hola"mu"nd'o'         → un argumento: holamundo
-    Todo eso es un solo argumento en cada caso. Las comillas solo afectan a cómo se interpreta lo que está dentro, pero no rompen el token.
-
-    Por qué es un problema
-
-    Tu tokenizador actual toma decisiones en función del primer carácter que encuentra:
-
-    Si empieza por " o ' → llama a tokenize_quotes
-    Si empieza por letra → llama a tokenize_word
-    El problema es que ninguna de las dos funciones sabe que la otra existe. Cuando tokenize_quotes termina de procesar "ho", devuelve el control a tokenize, que ve 'la' y llama otra vez a tokenize_quotes — creando un segundo token separado.
-
-La IA recomienda hacer esto:
-
-    Cómo tratarlo en tu proyecto
-    La solución más limpia es añadir una función nueva, algo como tokenize_complex_word, que sea responsable de construir un token completo antes de crear el nodo. Esta función recorre los caracteres pegados (sin espacios ni operadores entre ellos) acumulando el string, sin importar si hay partes entre comillas simples, dobles, o texto libre intercalados.
-
-    El flujo sería:
-
-    tokenize detecta que el carácter actual no es un operador (|, <, >) ni un espacio.
-    En lugar de llamar a tokenize_quotes o tokenize_word directamente, llama a tokenize_complex_word.
-    tokenize_complex_word tiene un bucle interno que, mientras no encuentre un espacio u operador, va procesando segmento a segmento:
-    Si el carácter actual es " o ' → procesa hasta la comilla de cierre, añade el contenido al string acumulado (sin la comilla), marca si era simple.
-    Si no → añade el carácter al string acumulado directamente.
-    Cuando termina, crea el token con el string completo ya construido.
-    El string resultante para "ho"'la'mundo sería holaMundo — sin comillas, todo unido — y es entonces cuando también puedes hacer el quote stripping de forma natural, porque nunca metes las comillas en el string acumulado.
-
-Basicamente recomienda unir tokenize_word y tokenize_quotes en una funcion que no se pare cuando cierre comillas sino cuando haya un espacio y que pueda tolerar casos como: "hola" -> hola ; blukker"hola" -> blukkerhola ; 'hola '"blukker" -> hola blukker. 
-
-
-**nuevo plan con tokenize_complex_word y process_token**
-
---->
-
-## Por qué sustituimos tokenize_word y tokenize_quotes
-
-El plan original tenía dos funciones separadas:
-
-- `tokenize_word` — leía caracteres normales hasta encontrar un espacio u operador
-- `tokenize_quotes` — leía desde una comilla de apertura hasta la de cierre
-
-El problema es que ninguna sabía de la existencia de la otra. Para `hola"mundo"`:
-
-1. `tokenize` ve `h` → llama a `tokenize_word`
-2. `tokenize_word` avanza hasta `"` → crea token `hola`, devuelve
-3. `tokenize` ve `"` → llama a `tokenize_quotes`
-4. `tokenize_quotes` crea token `mundo`
-
-Resultado: dos tokens separados. Incorrecto — bash lo trata como uno solo.
 
 ---
+---
+---
 
-## El nuevo plan: tokenize_complex_word + process_token
+## Reestructuracion del parser - 14 abril 2026
 
-Se divide el trabajo en dos fases limpias:
+### Que se ha hecho
 
-### Fase 1 — tokenize_complex_word
+Se ha reestructurado todo el parser en un pipeline de 5 fases limpias y separadas. Antes estaba todo mezclado (el tokenizer expandia variables y quitaba comillas a la vez). Ahora cada fase hace una sola cosa.
 
-Lee el troncho completo sin pararse en comillas, solo para cuando encuentra un espacio u operador (`|`, `<`, `>`). Devuelve el raw string tal como está en la línea, comillas incluidas.
-
-```
-hola"mundo"'oo'  →  raw = hola"mundo"'oo'
-"ho"'la'         →  raw = "ho"'la'
-hola             →  raw = hola
-```
-
-El único caso de error que detecta aquí es una comilla sin cerrar (devuelve -1).
-
-### Fase 2 — process_token
-
-Recibe el raw string y lo procesa carácter a carácter con un state machine de tres estados:
+### El pipeline actual
 
 ```
-NONE   → fuera de comillas
-DOUBLE → dentro de "..."
-SINGLE → dentro de '...'
+Input string
+     |
+     v
+[1. validate_quotes]  -->  Comprueba comillas sin cerrar ANTES de tokenizar
+     |
+     v
+[2. tokenize]         -->  Corta en tokens respetando comillas como delimitadores
+     |                      Los tokens salen CRUDOS (con comillas incluidas)
+     v
+[3. validate]         -->  Comprueba sintaxis: pipes, redirecciones
+     |                      Si hay error: exit_status = 2
+     v
+[4. expand]           -->  Expande $VAR y $? + elimina comillas (todo en un paso)
+     |                      Respeta comillas simples (no expande dentro)
+     v
+[5. build_cmd_list]   -->  Transforma tokens en lista enlazada de t_cmd
+     |                      Cada t_cmd tiene args[], redirs y next
+     v
+  LISTO PARA EJECUCION
 ```
 
-Reglas por estado:
+### Cambios por archivo
 
-| Carácter | NONE | DOUBLE | SINGLE |
-|----------|------|--------|--------|
-| `"` | → DOUBLE, no copiar | → NONE, no copiar | copiar literal |
-| `'` | → SINGLE, no copiar | copiar literal | → NONE, no copiar |
-| `$` | expandir variable | expandir variable | copiar `$` literal |
-| otro | copiar | copiar | copiar |
+**minishell.h**
+- `t_sh` se pasa por puntero (`t_sh *mini`) en todas partes
+- Nueva struct `t_redir` (lista enlazada de redirecciones por comando)
+- `t_cmd` actualizada: usa `t_redir *redirs` en vez de `infile/outfile/append`
+- `t_sh` tiene `cmd_list` para guardar el resultado del parser
+- Eliminado `single_quoted` de `t_tkn` (ya no se necesita)
 
-El resultado es un string limpio: sin comillas, con variables expandidas.
+**tokenizer.c**
+- Eliminado TODO el codigo de expansion (append_char, check_in_envp, process_token, vars_in_str)
+- Nuevo: `is_word_end` y `update_quote_state` para trackear estado de comillas
+- `tokenize_complex_word` reescrita: solo corta, no expande ni quita comillas
+- Salta tabs ademas de espacios
 
-```
-hola"mundo"'oo'  →  holamundooo
-"$USER"'literal' →  ricarditoliteralecho
-'$HOME'          →  $HOME   (no expandido)
-```
+**validator.c**
+- Nueva funcion `validate_quotes`: detecta comillas sin cerrar antes de tokenizar
+- `validate_redir_sintax` mejorada: muestra el token real en el error (no siempre "newline")
+- `validate` recibe `t_sh *mini` y pone `exit_status = 2` en errores
 
-### Cómo encajan en tokenize
+**expansor.c**
+- Reescrito para funcionar como paso separado del pipeline
+- `expand_token` tiene state machine de comillas: expande $ en NONE y DOUBLE, no en SINGLE
+- Tambien hace quote removal (las comillas se eliminan al procesar)
+- Soporta `$?` (exit status) via `get_var_value`
+- Maneja `$` solo como literal
+- Todos los valores se retornan con ft_strdup/ft_itoa (memoria propia)
+
+**parser.c**
+- Orquesta las 5 fases en orden
+- Contiene `new_cmd`, `add_arg`, `add_redir`, `build_cmd_list`
+- Contiene `free_tokens`, `free_redirs`, `free_cmd_list`
+- Libera tokens despues de construir la cmd_list
+- Libera tokens en caso de error de validacion
+
+**main.c**
+- Pasa `&mini` a parser (puntero)
+- Libera `cmd_list` despues de cada iteracion del bucle
+- Inicializa `cmd_list = NULL`
+
+### Structs actuales
 
 ```c
-// antes (incorrecto para tokens mixtos):
-if (line[i] == '"' || line[i] == '\'')
-    i = tokenize_quotes(line, i, tkn_list);
-else if (ft_isprint(line[i]))
-    i = tokenize_word(line, i, tkn_list);
+typedef struct s_redir
+{
+    t_tkn_type       type;     // REDIR_IN, REDIR_OUT, REDIR_APPEND, REDIR_HEREDOC
+    char             *file;    // nombre archivo o delimitador heredoc
+    struct s_redir   *next;
+}   t_redir;
 
-// ahora:
-else if (line[i] != ' ' && line[i] != '|'
-      && line[i] != '<' && line[i] != '>')
-    i = tokenize_complex_word(line, i, tkn_list, envp);
+typedef struct s_cmd
+{
+    char            **args;    // ["grep", "-i", "hello", NULL] (como argv)
+    t_redir         *redirs;   // lista enlazada de redirecciones
+    struct s_cmd    *next;     // siguiente comando tras un pipe
+}   t_cmd;
 ```
 
-Una sola condición de entrada. `tokenize_complex_word` llama internamente a `process_token` antes de crear el nodo, así que el token que llega al resto del pipeline ya está limpio y expandido.
+### Lo que falta
 
-
-
----
-
-
+- Ejecucion de comandos (fork + execve)
+- Pipes entre comandos
+- Aplicar redirecciones (open + dup2 recorriendo cmd->redirs)
+- Heredoc (leer lineas hasta delimitador)
+- Builtins (echo, cd, pwd, export, unset, env, exit)
+- Signals (Ctrl+C, Ctrl+D, Ctrl+\)
+- Manejar readline NULL (Ctrl+D)

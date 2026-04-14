@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 12:41:52 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/14 12:58:11 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/14 18:47:42 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ int	main(int argc, char **argv, char **envp)
 		line = readline("Prompt >> ");
 		add_history(line);
 		parser(line, &mini);
+		free_cmd_list(mini.cmd_list);
+		mini.cmd_list = NULL;
 		free(line);
 	}
 	return (0);

@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 12:48:32 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/14 13:43:51 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/14 18:48:43 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,11 +52,17 @@ typedef enum e_quote_state
     SINGLE
 }   t_quote_state;
 
+typedef struct s_redir
+{
+    t_tkn_type       type;
+    char             *file;
+    struct s_redir   *next;
+}   t_redir;
+
 typedef struct s_tkn
 {
     char            *token;
     t_tkn_type      type;
-    int             single_quoted;
     struct s_tkn    *next;
     struct s_tkn    *prev;
 }   t_tkn;
@@ -64,9 +70,7 @@ typedef struct s_tkn
 typedef struct s_cmd
 {
 	char			**args;
-	char			*infile;
-	char			*outfile;
-	int				append;
+	t_redir         *redirs;
 	struct s_cmd	*next;
 }	t_cmd;
 
@@ -74,6 +78,7 @@ typedef struct s_minishell
 {
     int     exit_status;
     t_tkn   *tkn_list;
+    t_cmd   *cmd_list;
     char    **envp;
 }   t_sh;
 
@@ -89,5 +94,8 @@ int		validate_quotes(char *line);
 int		validate(t_tkn *seq, t_sh *mini);
 int		parser(char *line, t_sh *mini);
 void	expand(t_tkn *seq, t_sh *mini);
+t_cmd	*build_cmd_list(t_tkn *tokens);
+void	free_tokens(t_tkn *list);
+void	free_cmd_list(t_cmd *list);
 
 #endif
