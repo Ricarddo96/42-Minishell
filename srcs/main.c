@@ -15,7 +15,7 @@
 int	main(int argc, char **argv, char **envp)
 {
 	char	*line;
-	t_sh	mini;
+	t_sh	mini;	
 
 	(void)argc;
 	(void)argv;
@@ -27,10 +27,10 @@ int	main(int argc, char **argv, char **envp)
 		line = readline("Prompt >> ");
 		if (!line)
 		{
-    		ft_putstr_fd("exit\n", STDERR_FILENO);
-    		break ;
+			ft_putstr_fd("exit\n", STDERR_FILENO);
+			break ;
 		}
-		if (line[0] !='\0')
+		if (line[0] != '\0')
 			add_history(line);
 		if (parser(line, &mini))
 			executor(&mini);
