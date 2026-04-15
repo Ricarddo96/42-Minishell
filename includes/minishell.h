@@ -11,92 +11,105 @@
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
-#define MINISHELL_H
+# define MINISHELL_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <signal.h>
-#include <dirent.h>
-#include <termios.h>
-#include <curses.h>
-#include <time.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <string.h>
+# include <signal.h>
+# include <dirent.h>
+# include <termios.h>
+# include <curses.h>
+# include <time.h>
 
-#include <term.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <sys/ioctl.h>
-#include <readline/readline.h>
-#include <readline/history.h>
-#include "../libft/libft.h"
-
-// lo ideal es que el parser rellene una *lista enlazada* donde cada nodo sea un comando separado por un pipe.
+# include <term.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <sys/wait.h>
+# include <sys/ioctl.h>
+# include <readline/readline.h>
+# include <readline/history.h>
+# include "../libft/libft.h"
 
 typedef enum e_tkn_type
 {
-    EMPTY,            // 0 - Útil para inicializar
-    WORD,             // 1 - Comandos, argumentos, nombres de archivo
-    PIPE,             // 2 - '|'
-    REDIR_IN,        // 3 - '<'
-    REDIR_OUT,       // 4 - '>'
-    REDIR_APPEND,    // 5 - '>>'
-    REDIR_HEREDOC    // 6 - '<<'
-}   t_tkn_type;
+	EMPTY,
+	WORD,
+	PIPE,
+	REDIR_IN,
+	REDIR_OUT,
+	REDIR_APPEND,
+	REDIR_HEREDOC
+}	t_tkn_type;
 
 typedef enum e_quote_state
 {
-    NONE,
-    DOUBLE,
-    SINGLE
-}   t_quote_state;
+	NONE,
+	DOUBLE,
+	SINGLE
+}	t_quote_state;
 
 typedef struct s_redir
 {
-    t_tkn_type       type;
-    char             *file;
-    struct s_redir   *next;
-}   t_redir;
+	t_tkn_type		type;
+	char			*file;
+	struct s_redir	*next;
+}	t_redir;
 
 typedef struct s_tkn
 {
-    char            *token;
-    t_tkn_type      type;
-    struct s_tkn    *next;
-    struct s_tkn    *prev;
-}   t_tkn;
+	char			*token;
+	t_tkn_type		type;
+	struct s_tkn	*next;
+	struct s_tkn	*prev;
+}	t_tkn;
 
 typedef struct s_cmd
 {
 	char			**args;
-	t_redir         *redirs;
+	t_redir			*redirs;
 	struct s_cmd	*next;
 }	t_cmd;
 
 typedef struct s_minishell
 {
-    int     exit_status;
-    t_tkn   *tkn_list;
-    t_cmd   *cmd_list;
-    char    **envp;
-}   t_sh;
+	int		exit_status;
+	t_tkn	*tkn_list;
+	t_cmd	*cmd_list;
+	char	**envp;
+}	t_sh;
 
-t_tkn	*new_token(char *str, t_tkn_type type);
-void	add_back(t_tkn **head, t_tkn *new_tkn);
-int		tokenize_append(char *line, int i, t_tkn **tkn_list);
-int		tokenize_redir_out(char *line, int i, t_tkn **tkn_list);
+// Parser
+int		parser(char *line, t_sh *mini);
+int		error_msg(char *msg);
+
+// Tokenizado
+t_tkn	*tokenize(char *line, t_sh *mini);
 int		tokenize_heredoc(char *line, int i, t_tkn **tkn_list);
 int		tokenize_redir_in(char *line, int i, t_tkn **tkn_list);
-int		tokenize_pipe(char *line, int i, t_tkn **tkn_list);
-t_tkn	*tokenize(char *line, t_sh *mini);
-int		validate_quotes(char *line);
+int		tokenize_redir_out(char *line, int i, t_tkn **tkn_list);
+int		tokenize_append(char *line, int i, t_tkn **tkn_list);
+
+// Crear tokens
+t_tkn	*new_token(char *str, t_tkn_type type);
+void	add_back(t_tkn **head, t_tkn *new_tkn);
+
+// Validator
 int		validate(t_tkn *seq, t_sh *mini);
-int		parser(char *line, t_sh *mini);
+
+// Expansor
 void	expand(t_tkn *seq, t_sh *mini);
-t_cmd	*build_cmd_list(t_tkn *tokens);
+char	*append_var(char *result, char *token, int *i, t_sh *mini);
+
+// Build cmd list
+int		build_cmd_list(t_tkn *tokens, t_cmd **head);
+
+// Liberar memoria
 void	free_tokens(t_tkn *list);
 void	free_cmd_list(t_cmd *list);
-int     executor(t_sh *mini);   
 
+// Executor
+int		executor(t_sh *mini);   
+void	free_redirs(t_redir *list);
 #endif

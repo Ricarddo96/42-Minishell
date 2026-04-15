@@ -12,23 +12,6 @@
 
 #include "../../includes/minishell.h"
 
-static int	error_msg(char *msg)
-{
-	ft_putstr_fd("minishell: ", STDERR_FILENO);
-	ft_putstr_fd(msg, STDERR_FILENO);
-	ft_putstr_fd("\n", STDERR_FILENO);
-	return (0);
-}
-
-static int	validate_pipe_sintax(t_tkn *seq)
-{
-	if (!seq->prev || !seq->next)
-		return (error_msg("syntax error near unexpected token `|'"));
-	if (seq->next->type == PIPE)
-		return (error_msg("syntax error near unexpected token `|'"));
-	return (1);
-}
-
 static int	validate_redir_sintax(t_tkn *seq)
 {
 	if (!seq->next)
@@ -43,27 +26,12 @@ static int	validate_redir_sintax(t_tkn *seq)
 	return (1);
 }
 
-int	validate_quotes(char *line)
+static int	validate_pipe_sintax(t_tkn *seq)
 {
-	int				i;
-	t_quote_state	qstate;
-
-	i = 0;
-	qstate = NONE;
-	while (line[i])
-	{
-		if (line[i] == '\'' && qstate == NONE)
-			qstate = SINGLE;
-		else if (line[i] == '\'' && qstate == SINGLE)
-			qstate = NONE;
-		else if (line[i] == '"' && qstate == NONE)
-			qstate = DOUBLE;
-		else if (line[i] == '"' && qstate == DOUBLE)
-			qstate = NONE;
-		i++;
-	}
-	if (qstate != NONE)
-		return (error_msg("syntax error: unclosed quotes"));
+	if (!seq->prev || !seq->next)
+		return (error_msg("syntax error near unexpected token `|'"));
+	if (seq->next->type == PIPE)
+		return (error_msg("syntax error near unexpected token `|'"));
 	return (1);
 }
 
@@ -76,13 +44,10 @@ int	validate(t_tkn *seq, t_sh *mini)
 	seq_copy = seq;
 	while (seq_copy)
 	{
-		if (seq_copy->type == PIPE)
+		if (seq_copy->type == PIPE && !validate_pipe_sintax(seq_copy))
 		{
-			if (!validate_pipe_sintax(seq_copy))
-			{
-				mini->exit_status = 2;
-				return (0);
-			}
+			mini->exit_status = 2;
+			return (0);
 		}
 		else if (seq_copy->type == REDIR_APPEND || seq_copy->type == REDIR_OUT
 			|| seq_copy->type == REDIR_HEREDOC || seq_copy->type == REDIR_IN)

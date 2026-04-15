@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/minishell.h"
+#include "../../../includes/minishell.h"
 
 static char	*get_var_name(char *token, int *i)
 {
@@ -46,19 +46,7 @@ static char	*get_var_value(char *name, t_sh *mini)
 	return (ft_strdup(""));
 }
 
-static char	*append_literal(char *result, char *token, int start, int end)
-{
-	char	*segment;
-	char	*tmp;
-
-	segment = ft_substr(token, start, end - start);
-	tmp = ft_strjoin(result, segment);
-	free(segment);
-	free(result);
-	return (tmp);
-}
-
-static char	*append_var(char *result, char *token, int *i, t_sh *mini)
+char	*append_var(char *result, char *token, int *i, t_sh *mini)
 {
 	char	*name;
 	char	*value;
@@ -84,68 +72,4 @@ static char	*append_var(char *result, char *token, int *i, t_sh *mini)
 	free(value);
 	free(result);
 	return (tmp);
-}
-
-static int	is_quote_char(char c)
-{
-	return (c == '\'' || c == '"');
-}
-
-static void	update_qstate(char c, t_quote_state *qstate)
-{
-	if (c == '\'' && *qstate == NONE)
-		*qstate = SINGLE;
-	else if (c == '\'' && *qstate == SINGLE)
-		*qstate = NONE;
-	else if (c == '"' && *qstate == NONE)
-		*qstate = DOUBLE;
-	else if (c == '"' && *qstate == DOUBLE)
-		*qstate = NONE;
-}
-
-char	*expand_token(char *token, t_sh *mini)
-{
-	char	*result;
-	int		i;
-	int		start;
-	t_quote_state qstate;
-
-	result = ft_strdup("");
-	i = 0;
-	qstate = NONE;
-	while (token[i])
-	{
-		start = i;
-		while (token[i] && !(token[i] == '$' && qstate != SINGLE)
-			&& !is_quote_char(token[i]))
-			i++;
-		if (i > start)
-			result = append_literal(result, token, start, i);
-		if (token[i] == '\'' || token[i] == '"')
-			update_qstate(token[i++], &qstate);
-		else if (token[i] == '$' && qstate != SINGLE)
-			result = append_var(result, token, &i, mini);
-		if (!result)
-			return (NULL);
-	}
-	return (result);
-}
-
-void	expand(t_tkn *seq, t_sh *mini)
-{
-	char	*expanded;
-
-	while (seq)
-	{
-		if (seq->type == WORD)
-		{
-			expanded = expand_token(seq->token, mini);
-			if (expanded)
-			{
-				free(seq->token);
-				seq->token = expanded;
-			}
-		}
-		seq = seq->next;
-	}
 }

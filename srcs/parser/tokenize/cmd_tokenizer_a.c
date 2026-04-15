@@ -10,94 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/minishell.h"
+#include "../../../includes/minishell.h"
 
-t_tkn	*new_token(char *str, t_tkn_type type)
-{
-	t_tkn	*node;
-
-	node = malloc(sizeof(t_tkn));
-	if (!node)
-		return (NULL);
-	node->token = ft_strdup(str);
-	if (!node->token)
-	{
-		free(node);
-		return (NULL);
-	}
-	node->type = type;
-	node->next = NULL;
-	node->prev = NULL;
-	return (node);
-}
-
-void	add_back(t_tkn **head, t_tkn *new_tkn)
-{
-	t_tkn	*copy;
-
-	if (head == NULL || new_tkn == NULL)
-		return ;
-	if (*head == NULL)
-	{
-		*head = new_tkn;
-		return ;
-	}
-	copy = *head;
-	while (copy->next != NULL)
-		copy = copy->next;
-	copy->next = new_tkn;
-	new_tkn->prev = copy;
-}
-
-int	tokenize_append(char *line, int i, t_tkn **tkn_list)
-{
-	t_tkn	*token;
-
-	(void)line;
-	token = new_token(">>", REDIR_APPEND);
-	if (!token)
-		return (-1);
-	add_back(tkn_list, token);
-	return (i + 2);
-}
-
-int	tokenize_redir_out(char *line, int i, t_tkn **tkn_list)
-{
-	t_tkn	*token;
-
-	(void)line;
-	token = new_token(">", REDIR_OUT);
-	if (!token)
-		return (-1);
-	add_back(tkn_list, token);
-	return (i + 1);
-}
-
-int	tokenize_heredoc(char *line, int i, t_tkn **tkn_list)
-{
-	t_tkn	*token;
-
-	(void)line;
-	token = new_token("<<", REDIR_HEREDOC);
-	if (!token)
-		return (-1);
-	add_back(tkn_list, token);
-	return (i + 2);
-}
-
-int	tokenize_redir_in(char *line, int i, t_tkn **tkn_list)
-{
-	t_tkn	*token;
-
-	(void)line;
-	token = new_token("<", REDIR_IN);
-	if (!token)
-		return (-1);
-	add_back(tkn_list, token);
-	return (i + 1);
-}
-
-int	tokenize_pipe(char *line, int i, t_tkn **tkn_list)
+static int	tokenize_pipe(char *line, int i, t_tkn **tkn_list)
 {
 	t_tkn	*token;
 

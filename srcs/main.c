@@ -15,7 +15,7 @@
 int	main(int argc, char **argv, char **envp)
 {
 	char	*line;
-	t_sh	mini;	
+	t_sh	mini;
 
 	(void)argc;
 	(void)argv;
