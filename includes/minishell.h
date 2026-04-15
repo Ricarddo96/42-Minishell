@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 12:48:32 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/14 18:48:43 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/15 16:46:36 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,5 +97,6 @@ void	expand(t_tkn *seq, t_sh *mini);
 t_cmd	*build_cmd_list(t_tkn *tokens);
 void	free_tokens(t_tkn *list);
 void	free_cmd_list(t_cmd *list);
+int     executor(t_sh *mini);   
 
 #endif

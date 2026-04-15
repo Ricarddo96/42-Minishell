@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 12:41:52 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/14 18:47:42 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/15 17:04:57 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,15 @@ int	main(int argc, char **argv, char **envp)
 	while (1)
 	{
 		line = readline("Prompt >> ");
-		add_history(line);
-		parser(line, &mini);
+		if (!line)
+		{
+    		ft_putstr_fd("exit\n", STDERR_FILENO);
+    		break ;
+		}
+		if (line[0] !='\0')
+			add_history(line);
+		if (parser(line, &mini))
+			executor(&mini);
 		free_cmd_list(mini.cmd_list);
 		mini.cmd_list = NULL;
 		free(line);
