@@ -6,11 +6,13 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 16:39:20 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/16 16:07:00 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/16 17:13:00 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
+#include <fcntl.h>
+#include <unistd.h>
 
 
 char	**get_path(char **envp)
@@ -78,6 +80,38 @@ char    *resolve_path(char *cmd, char **envp)
     return (cmd_route);   
 }
 
+int apply_redirs(t_redir *redirs)
+{
+	int fd;
+
+	while (redirs) 
+	{
+		if (redirs->type == REDIR_IN)
+			fd = open(redirs->file, O_RDONLY);
+		else if (redirs->type == REDIR_OUT)
+			fd = open(redirs->file, O_WRONLY | O_CREAT | O_TRUNC, 0664);
+		else if (redirs->type == REDIR_APPEND)
+			fd = open(redirs->file, O_WRONLY | O_CREAT | O_APPEND, 0664);
+		else
+		{
+			redirs = redirs->next; // esto es para el heredoc que lo dejamos para mas adelante
+			continue;
+		} 
+		if (fd == -1)
+        {
+            perror("minishell");
+            return (-1);
+        }
+		if (redirs->type == REDIR_IN)
+			dup2(fd, STDIN_FILENO);
+		else
+			dup2(fd, STDOUT_FILENO);
+		close(fd);
+		redirs = redirs->next;
+	}
+	return (0);
+}
+
 void handle_fork_one_cmd(t_sh *mini, char *path)
 {
 	pid_t pid;
@@ -92,6 +126,8 @@ void handle_fork_one_cmd(t_sh *mini, char *path)
 	}
 	if (pid == 0)
 	{
+		if (apply_redirs(mini->cmd_list->redirs) == -1)
+				exit(1);
 		execve(path, mini->cmd_list->args, mini->envp);
 		perror("minishell");
 		free(path);
