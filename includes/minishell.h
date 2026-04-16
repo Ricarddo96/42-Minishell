@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 12:48:32 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/15 16:46:36 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/16 16:05:34 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@
 # include <termios.h>
 # include <curses.h>
 # include <time.h>
-
 # include <term.h>
 # include <sys/types.h>
 # include <sys/stat.h>
@@ -112,4 +111,8 @@ void	free_cmd_list(t_cmd *list);
 // Executor
 int		executor(t_sh *mini);   
 void	free_redirs(t_redir *list);
+
+// built-ins utils
+int is_built_in(char *cmd);
+
 #endif
