@@ -12,6 +12,28 @@
 
 #include "../../includes/minishell.h"
 
+void	new_env_var(t_sh *mini, char *new_var)
+{
+	char	**new_env;
+	int		i;
+
+	i = 0;
+	while (mini->envp[i])
+		i++;
+	new_env = calloc(i + 2, sizeof(char *));
+	if (!new_env)
+		exit (1);
+	i = 0;
+	while (mini->envp[i])
+	{
+		new_env[i] = mini->envp[i];
+		i++;
+	}
+	new_env[i] = new_var;
+	free(mini->envp);
+	mini->envp = new_env;
+}
+
 int	is_built_in(char *cmd)
 {
 	if (!ft_strncmp(cmd, "echo", 5)

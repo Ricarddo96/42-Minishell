@@ -11,37 +11,30 @@
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
-/*
-void	which_exit(t_sh *mini)
+
+void	exec_echo(t_sh *mini)
 {
-	if (mini->cmd_list->args[1] == NULL)
-	{
-		exec_std_exit(mini)
-	}
-	if else ()
-	{
+	int	i;
+	int	has_line_break;
 
-	}
-	if else ()
+	if (!ft_strncmp(mini->cmd_list->args[1], "-n", 3))
 	{
-
+		i = 2;
+		has_line_break = 0;
 	}
-}*/
-
-void    which_built_ins(t_sh *mini)
-{
-    if (!ft_strncmp(mini->cmd_list->args[0], "echo", 5))
-		exec_echo(mini);
-    if (!ft_strncmp(mini->cmd_list->args[0], "cd", 3))
-		which_dir(mini);
-    if (!ft_strncmp(mini->cmd_list->args[0], "pwd", 4))
-		exec_pwd(mini);
-	/*if (!ft_strncmp(mini->cmd_list->args[0], "export", 7))
-		exec_expor(mini);
-	if (!ft_strncmp(mini->cmd_list->args[0], "unset", 6))
-		exec_unset(mini);
-    if (!ft_strncmp(mini->cmd_list->args[0], "env", 4))
-		exec_env(mini);
-    if (!ft_strncmp(mini->cmd_list->args[0], "exit", 5))
-		which_exit(mini);
-*/}
+	else
+	{
+		i = 1;
+		has_line_break = 1;
+	}
+	while (mini->cmd_list->args[i])
+		{
+			ft_putstr_fd(mini->cmd_list->args[i], STDOUT_FILENO);
+			i++;
+			if (mini->cmd_list->args[i])
+				ft_putchar_fd(' ', STDOUT_FILENO);
+		}
+	if (has_line_break)
+		ft_putchar_fd('\n', STDOUT_FILENO);
+    mini->exit_status = 0;
+}

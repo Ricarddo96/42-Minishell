@@ -11,37 +11,31 @@
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
-/*
-void	which_exit(t_sh *mini)
+
+void	exec_pwd(t_sh *mini)
 {
-	if (mini->cmd_list->args[1] == NULL)
-	{
-		exec_std_exit(mini)
-	}
-	if else ()
-	{
+	int		i;
+	char	wd[PATH_MAX];
 
-	}
-	if else ()
+	i = 0;
+	while (mini->envp[i])
 	{
-
+		if (ft_strnstr(mini->envp[i], "PWD=", 5))
+			break ;
+		i++;
 	}
-}*/
-
-void    which_built_ins(t_sh *mini)
-{
-    if (!ft_strncmp(mini->cmd_list->args[0], "echo", 5))
-		exec_echo(mini);
-    if (!ft_strncmp(mini->cmd_list->args[0], "cd", 3))
-		which_dir(mini);
-    if (!ft_strncmp(mini->cmd_list->args[0], "pwd", 4))
-		exec_pwd(mini);
-	/*if (!ft_strncmp(mini->cmd_list->args[0], "export", 7))
-		exec_expor(mini);
-	if (!ft_strncmp(mini->cmd_list->args[0], "unset", 6))
-		exec_unset(mini);
-    if (!ft_strncmp(mini->cmd_list->args[0], "env", 4))
-		exec_env(mini);
-    if (!ft_strncmp(mini->cmd_list->args[0], "exit", 5))
-		which_exit(mini);
-*/}
+	if (mini->envp[i] == NULL)
+	{
+		if (getcwd(wd, sizeof(wd)) == NULL)
+		{
+			error_msg("getcwd failed");
+			mini->exit_status = 1;
+			return ;
+		}
+		ft_putstr_fd(wd, STDOUT_FILENO);
+	}
+	else
+		ft_putstr_fd(mini->envp[i] + 5, STDOUT_FILENO);
+	ft_putchar_fd('\n', STDOUT_FILENO);
+    mini->exit_status = 0;
+}

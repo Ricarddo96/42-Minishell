@@ -122,6 +122,10 @@ void	free_redirs(t_redir *list);
 
 // Built ins
 void    which_built_ins(t_sh *mini);
+void	exec_echo(t_sh *mini);
+void	which_dir(t_sh *mini);
+void	new_env_var(t_sh *mini, char *new_var);
+void	exec_pwd(t_sh *mini);
 
 // built-ins utils
 int is_built_in(char *cmd);
