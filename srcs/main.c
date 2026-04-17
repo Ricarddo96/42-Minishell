@@ -21,7 +21,7 @@ int	main(int argc, char **argv, char **envp)
 	(void)argv;
 	mini.exit_status = 0;
 	mini.tkn_list = NULL;
-	mini.envp = envp;
+	copy_env(&mini, envp);
 	while (1)
 	{
 		line = readline("Prompt >> ");

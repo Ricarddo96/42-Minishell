@@ -18,7 +18,8 @@ SRC =	srcs/main.c \
 		srcs/parser/free_memory.c \
 		srcs/parser/validator.c \
 		srcs/exec/executor.c \
-		srcs/builtins/utils.c
+		srcs/builtins/utils.c \
+		srcs/builtins/exec_one_build_in.c
 
 OBJ = $(SRC:.c=.o)
 

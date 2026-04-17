@@ -29,8 +29,13 @@
 # include <sys/ioctl.h>
 # include <readline/readline.h>
 # include <readline/history.h>
-#include <fcntl.h>
+# include <fcntl.h>
+# include <limits.h>
 # include "../libft/libft.h"
+
+#ifndef PATH_MAX
+# define PATH_MAX 4096
+#endif
 
 typedef enum e_tkn_type
 {
@@ -82,6 +87,7 @@ typedef struct s_minishell
 
 // Parser
 int		parser(char *line, t_sh *mini);
+void	copy_env(t_sh *mini, char **envp);
 int		error_msg(char *msg);
 
 // Tokenizado
@@ -108,10 +114,14 @@ int		build_cmd_list(t_tkn *tokens, t_cmd **head);
 // Liberar memoria
 void	free_tokens(t_tkn *list);
 void	free_cmd_list(t_cmd *list);
+void	free_matrix(char **matrix);
 
 // Executor
 int		executor(t_sh *mini);   
 void	free_redirs(t_redir *list);
+
+// Built ins
+void    which_built_ins(t_sh *mini);
 
 // built-ins utils
 int is_built_in(char *cmd);

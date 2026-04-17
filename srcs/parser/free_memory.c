@@ -12,6 +12,19 @@
 
 #include "../../includes/minishell.h"
 
+void	free_matrix(char **matrix)
+{
+	int	i;
+
+	i = 0;
+	while (matrix[i])
+	{
+		free(matrix[i]);
+		i++;
+	}
+	free(matrix);
+}
+
 void	free_tokens(t_tkn *list)
 {
 	t_tkn	*tmp;

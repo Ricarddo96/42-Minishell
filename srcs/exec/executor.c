@@ -11,9 +11,6 @@
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
-#include <fcntl.h>
-#include <unistd.h>
-
 
 char	**get_path(char **envp)
 {
@@ -166,7 +163,7 @@ int executor(t_sh *mini)
     {
         if (is_built_in(mini->cmd_list->args[0]))
         {
-            // ejecutar built-in sin fork
+			which_built_ins(mini);
 			return (mini->exit_status);
         }
         else

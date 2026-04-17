@@ -12,8 +12,7 @@
 
 #include "../../includes/minishell.h"
 
-//esta fucnion checkea si es un built in, la necesitaba para el ejecutor
-int is_built_in(char *cmd)
+int	is_built_in(char *cmd)
 {
 	if (!ft_strncmp(cmd, "echo", 5)
 		|| !ft_strncmp(cmd, "cd", 3)
