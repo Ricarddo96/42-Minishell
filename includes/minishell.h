@@ -86,48 +86,52 @@ typedef struct s_minishell
 }	t_sh;
 
 // Parser
-int		parser(char *line, t_sh *mini);
-void	copy_env(t_sh *mini, char **envp);
-int		error_msg(char *msg);
+int			parser(char *line, t_sh *mini);
+void		copy_env(t_sh *mini, char **envp);
+int			error_msg(char *msg);
 
 // Tokenizado
-t_tkn	*tokenize(char *line, t_sh *mini);
-int		tokenize_heredoc(char *line, int i, t_tkn **tkn_list);
-int		tokenize_redir_in(char *line, int i, t_tkn **tkn_list);
-int		tokenize_redir_out(char *line, int i, t_tkn **tkn_list);
-int		tokenize_append(char *line, int i, t_tkn **tkn_list);
+t_tkn		*tokenize(char *line, t_sh *mini);
+int			tokenize_heredoc(char *line, int i, t_tkn **tkn_list);
+int			tokenize_redir_in(char *line, int i, t_tkn **tkn_list);
+int			tokenize_redir_out(char *line, int i, t_tkn **tkn_list);
+int			tokenize_append(char *line, int i, t_tkn **tkn_list);
 
 // Crear tokens
-t_tkn	*new_token(char *str, t_tkn_type type);
-void	add_back(t_tkn **head, t_tkn *new_tkn);
+t_tkn		*new_token(char *str, t_tkn_type type);
+void		add_back(t_tkn **head, t_tkn *new_tkn);
 
 // Validator
-int		validate(t_tkn *seq, t_sh *mini);
+int			validate(t_tkn *seq, t_sh *mini);
 
 // Expansor
-void	expand(t_tkn *seq, t_sh *mini);
-char	*append_var(char *result, char *token, int *i, t_sh *mini);
+void		expand(t_tkn *seq, t_sh *mini);
+char		*append_var(char *result, char *token, int *i, t_sh *mini);
 
 // Build cmd list
-int		build_cmd_list(t_tkn *tokens, t_cmd **head);
+int			build_cmd_list(t_tkn *tokens, t_cmd **head);
 
 // Liberar memoria
-void	free_tokens(t_tkn *list);
-void	free_cmd_list(t_cmd *list);
-void	free_matrix(char **matrix);
+void		free_tokens(t_tkn *list);
+void		free_cmd_list(t_cmd *list);
+void		free_matrix(char **matrix);
 
 // Executor
-int		executor(t_sh *mini);   
-void	free_redirs(t_redir *list);
+int			executor(t_sh *mini);   
+void		free_redirs(t_redir *list);
 
 // Built ins
-void    which_built_ins(t_sh *mini);
-void	exec_echo(t_sh *mini);
-void	which_dir(t_sh *mini);
-void	new_env_var(t_sh *mini, char *new_var);
-void	exec_pwd(t_sh *mini);
+void    	which_built_ins(t_sh *mini);
+void		exec_echo(t_sh *mini);
+void		exec_pwd(t_sh *mini);
+void		exec_env(t_sh *mini);
+void		which_dir(t_sh *mini);
+void		which_exit(t_sh *mini);
 
-// built-ins utils
-int is_built_in(char *cmd);
+// Built-ins utils
+int			is_built_in(char *cmd);
+int			is_num(char *arg);
+long long	ft_atoi_buildins(const char *nptr, int *error);
+void		new_env_var(t_sh *mini, char *new_var);
 
 #endif

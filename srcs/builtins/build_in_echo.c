@@ -28,13 +28,13 @@ void	exec_echo(t_sh *mini)
 		has_line_break = 1;
 	}
 	while (mini->cmd_list->args[i])
-		{
-			ft_putstr_fd(mini->cmd_list->args[i], STDOUT_FILENO);
-			i++;
-			if (mini->cmd_list->args[i])
-				ft_putchar_fd(' ', STDOUT_FILENO);
-		}
+	{
+		ft_putstr_fd(mini->cmd_list->args[i], STDOUT_FILENO);
+		i++;
+		if (mini->cmd_list->args[i])
+			ft_putchar_fd(' ', STDOUT_FILENO);
+	}
 	if (has_line_break)
 		ft_putchar_fd('\n', STDOUT_FILENO);
-    mini->exit_status = 0;
+	mini->exit_status = 0;
 }

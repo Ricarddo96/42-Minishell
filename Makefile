@@ -19,10 +19,12 @@ SRC =	srcs/main.c \
 		srcs/parser/validator.c \
 		srcs/exec/executor.c \
 		srcs/builtins/utils.c \
-		srcs/builtins/exec_one_build_in.c \
+		srcs/builtins/exec_build_in.c \
 		srcs/builtins/build_in_cd.c \
 		srcs/builtins/build_in_echo.c \
-		srcs/builtins/build_in_pwd.c
+		srcs/builtins/build_in_pwd.c \
+		srcs/builtins/build_in_exit.c \
+		srcs/builtins/build_in_env.c
 
 OBJ = $(SRC:.c=.o)
 

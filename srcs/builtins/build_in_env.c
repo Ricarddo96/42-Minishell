@@ -11,37 +11,25 @@
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
-/*
-void	which_exit(t_sh *mini)
+
+void	exec_env(t_sh *mini)
 {
-	if (mini->cmd_list->args[1] == NULL)
-	{
-		exec_std_exit(mini)
-	}
-	if else ()
-	{
+	int	i;
 
-	}
-	if else ()
+	i = 0;
+	if (mini->cmd_list->args[1] != NULL)
 	{
-
+		ft_putstr_fd("env: '", STDERR_FILENO);
+		ft_putstr_fd(mini->cmd_list->args[1], STDERR_FILENO);
+		ft_putendl_fd("': no such file or directory", STDERR_FILENO);
+		mini->exit_status = 127;
+		return ;
 	}
-}*/
-
-void    which_built_ins(t_sh *mini)
-{
-    if (!ft_strncmp(mini->cmd_list->args[0], "echo", 5))
-		exec_echo(mini);
-    if (!ft_strncmp(mini->cmd_list->args[0], "cd", 3))
-		which_dir(mini);
-    if (!ft_strncmp(mini->cmd_list->args[0], "pwd", 4))
-		exec_pwd(mini);
-	/*if (!ft_strncmp(mini->cmd_list->args[0], "export", 7))
-		exec_expor(mini);
-	if (!ft_strncmp(mini->cmd_list->args[0], "unset", 6))
-		exec_unset(mini);
-    if (!ft_strncmp(mini->cmd_list->args[0], "env", 4))
-		exec_env(mini);
-    if (!ft_strncmp(mini->cmd_list->args[0], "exit", 5))
-		which_exit(mini);
-*/}
+	while (mini->envp[i])
+	{
+		if (ft_strchr(mini->envp[i], '='))
+			ft_putendl_fd(mini->envp[i], STDOUT_FILENO);
+		i++;
+	}
+	mini->exit_status = 0;
+}

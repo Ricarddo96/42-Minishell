@@ -15,8 +15,7 @@
 int	error_msg(char *msg)
 {
 	ft_putstr_fd("minishell: ", STDERR_FILENO);
-	ft_putstr_fd(msg, STDERR_FILENO);
-	ft_putstr_fd("\n", STDERR_FILENO);
+	ft_putendl_fd(msg, STDERR_FILENO);
 	return (0);
 }
 

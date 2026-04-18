@@ -20,7 +20,7 @@ static void	update_wd_in_env(t_sh *mini, char *env_var, char *new_pwd)
 	i = 0;
 	new_var = ft_strjoin(env_var, new_pwd);
 	while (mini->envp[i] != NULL)
-	{	
+	{
 		if (ft_strnstr(mini->envp[i], env_var, ft_strlen(env_var)))
 		{
 			free(mini->envp[i]);
@@ -46,7 +46,6 @@ static void	exec_cd(t_sh *mini, char *dir)
 	if (chdir(dir) != 0)
 	{
 		perror("cd: ");
-		//error_msg( "cd: No such file or directory");
 		mini->exit_status = 1;
 		return ;
 	}
@@ -67,7 +66,7 @@ static void	search_cd_home(t_sh *mini)
 
 	i = 0;
 	while (mini->envp[i] != NULL)
-	{	
+	{
 		if (ft_strnstr(mini->envp[i], "HOME=", 5))
 			break ;
 		i++;
