@@ -117,7 +117,11 @@ void		free_cmd_list(t_cmd *list);
 void		free_matrix(char **matrix);
 
 // Executor
-int			executor(t_sh *mini);   
+int			executor(t_sh *mini);
+void		exec_one_cmd(t_sh *mini);
+int			exec_pipeline(t_sh *mini);
+char		*resolve_path(char *cmd, char **envp);
+int			apply_redirs(t_redir *redirs);
 void		free_redirs(t_redir *list);
 
 // Built ins

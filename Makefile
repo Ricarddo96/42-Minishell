@@ -18,6 +18,10 @@ SRC =	srcs/main.c \
 		srcs/parser/free_memory.c \
 		srcs/parser/validator.c \
 		srcs/exec/executor.c \
+		srcs/exec/path_resolver.c \
+		srcs/exec/redirs.c \
+		srcs/exec/exec_simple.c \
+		srcs/exec/pipes.c \
 		srcs/builtins/utils.c \
 		srcs/builtins/exec_build_in.c \
 		srcs/builtins/build_in_cd.c \
