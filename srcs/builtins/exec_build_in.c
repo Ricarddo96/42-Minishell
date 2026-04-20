@@ -17,6 +17,7 @@ void	exec_unset(t_sh *mini)
 {
 	int	i;
 	int	j;
+	int	len;
 
 	i = 1;
 	if (mini->cmd_list->args[1] == NULL)
@@ -27,9 +28,10 @@ void	exec_unset(t_sh *mini)
 	while (mini->cmd_list->args[i])
 	{
 		j = 0;
+		len = ft_strlen(mini->cmd_list->args[i]);
 		while (mini->envp[j])
 		{
-			if (ft_strnstr(mini->envp[j], mini->cmd_list->args[i], ft_strlen(mini->envp[j])))
+			if (ft_strncmp(mini->envp[j], mini->cmd_list->args[i], len) == 0 && mini->envp[j][len] == '=' || mini->envp[j][len] == '\0')
 			{
 				free_var_in_env(mini, j);
 				break ;
