@@ -21,7 +21,7 @@ static void	update_wd_in_env(t_sh *mini, char *env_var, char *new_pwd)
 	new_var = ft_strjoin(env_var, new_pwd);
 	while (mini->envp[i] != NULL)
 	{
-		if (ft_strnstr(mini->envp[i], env_var, ft_strlen(env_var)))
+		if (ft_strncmp(mini->envp[i], env_var, ft_strlen(env_var)) == 0)
 		{
 			free(mini->envp[i]);
 			mini->envp[i] = new_var;
@@ -42,13 +42,15 @@ static void	exec_cd(t_sh *mini, char *dir)
 		mini->exit_status = 1;
 		return ;
 	}
-	update_wd_in_env(mini, "OLDPWD=", wd);
 	if (chdir(dir) != 0)
 	{
-		perror("cd: ");
+		ft_putstr_fd("minishell: cd: ", STDERR_FILENO);
+		ft_putstr_fd(dir, STDERR_FILENO);
+		ft_putendl_fd(": no such file or directory", STDERR_FILENO);
 		mini->exit_status = 1;
 		return ;
 	}
+	update_wd_in_env(mini, "OLDPWD=", wd);
 	if (getcwd(wd, sizeof(wd)) == NULL)
 	{
 		error_msg("getcwd failed");
@@ -67,7 +69,7 @@ static void	search_cd_home(t_sh *mini)
 	i = 0;
 	while (mini->envp[i] != NULL)
 	{
-		if (ft_strnstr(mini->envp[i], "HOME=", 5))
+		if (ft_strncmp(mini->envp[i], "HOME=", 5) == 0)
 			break ;
 		i++;
 	}

@@ -11,8 +11,52 @@
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
+/*
+int	unset_checker(char *envp, char *arg, int len)
+{
+	if (ft_strncmp(envp, arg, len) == 0)
+	{
+		if (envp[len] == '=' || envp[len] == '\0')
+		{
+			return (1);
+		}
+	}
+	return (0);
+}
 
-// Está sin terminar
+void	print_unset_error(char *str)
+{
+	ft_putstr_fd("minishell: unset: '", STDERR_FILENO);
+	ft_putstr_fd(str, STDERR_FILENO);
+	ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
+}
+
+int	unset_check_args(t_sh *mini, int i)
+{
+	int		j;
+	char	*ptr;
+
+	j = 1;
+	ptr = mini->cmd_list->args[i];
+	if (!ft_isalpha(ptr[0]) && ptr[0] != '_')
+	{
+		mini->exit_status = 1;
+		print_unset_error(ptr);
+		return (0);
+	}
+	while (ptr[j])
+	{
+		if (!ft_isalnum(ptr[j]) && ptr[j] != '_')
+		{
+			mini->exit_status = 1;
+			print_unset_error(ptr);
+			return (0);
+		}
+		j++;
+	}
+	return (1);
+}
+
 void	exec_unset(t_sh *mini)
 {
 	int	i;
@@ -20,29 +64,27 @@ void	exec_unset(t_sh *mini)
 	int	len;
 
 	i = 1;
-	if (mini->cmd_list->args[1] == NULL)
-	{
-		mini->exit_status = 0;
-		return ;
-	}
+	mini->exit_status = 0;
 	while (mini->cmd_list->args[i])
 	{
 		j = 0;
-		len = ft_strlen(mini->cmd_list->args[i]);
-		while (mini->envp[j])
+		if (unset_check_args(mini, i))
 		{
-			if (ft_strncmp(mini->envp[j], mini->cmd_list->args[i], len) == 0 && mini->envp[j][len] == '=' || mini->envp[j][len] == '\0')
+			len = ft_strlen(mini->cmd_list->args[i]);
+			while (mini->envp[j])
 			{
-				free_var_in_env(mini, j);
-				break ;
+				if (unset_checker(mini->envp[j], mini->cmd_list->args[i], len))
+				{
+					free_var_in_env(mini, j);
+					break ;
+				}
+				j++;
 			}
-			j++;
 		}
 		i++;
 	}
-	mini->exit_status = 0;
 }
-
+*/
 void    which_built_ins(t_sh *mini)
 {
     if (!ft_strncmp(mini->cmd_list->args[0], "echo", 5))
