@@ -127,11 +127,14 @@ void		exec_pwd(t_sh *mini);
 void		exec_env(t_sh *mini);
 void		which_dir(t_sh *mini);
 void		which_exit(t_sh *mini);
+void		exec_unset(t_sh *mini);
+void		which_export(t_sh *mini);
+void		exec_export_args(t_sh *mini);
 
 // Built-ins utils
 int			is_built_in(char *cmd);
-int			is_num(char *arg);
 long long	ft_atoi_buildins(const char *nptr, int *error);
 void		new_env_var(t_sh *mini, char *new_var);
+void		print_export_error_msg(char *str);
 
 #endif

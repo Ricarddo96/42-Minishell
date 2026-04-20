@@ -45,8 +45,7 @@ static void	exec_cd(t_sh *mini, char *dir)
 	if (chdir(dir) != 0)
 	{
 		ft_putstr_fd("minishell: cd: ", STDERR_FILENO);
-		ft_putstr_fd(dir, STDERR_FILENO);
-		ft_putendl_fd(": no such file or directory", STDERR_FILENO);
+		perror(dir);
 		mini->exit_status = 1;
 		return ;
 	}
@@ -94,6 +93,5 @@ void	which_dir(t_sh *mini)
 	}
 	if (mini->cmd_list->args[1] == NULL)
 		search_cd_home(mini);
-	else
-		exec_cd(mini, mini->cmd_list->args[1]);
+	exec_cd(mini, mini->cmd_list->args[1]);
 }

@@ -12,6 +12,25 @@
 
 #include "../../includes/minishell.h"
 
+void	print_export_error_msg(char *str)
+{
+	ft_putstr_fd("minishell: export: '", STDERR_FILENO);
+	ft_putstr_fd(str, STDERR_FILENO);
+	ft_putendl_fd("': not a valid identifier", STDERR_FILENO);	
+}
+
+static int	out_of_limits(unsigned long long res, int sign, const char c)
+{
+	if ((res > (LONG_MAX / 10) && sign == 1) ||
+		(res == LONG_MAX / 10 && (c - '0') > 7))
+		return (1);
+	else if ((res > (unsigned long long)LONG_MAX / 10) || 
+		(res == (unsigned long long)LONG_MAX / 10 && (c - '0') > 8))
+		return (1);
+	else
+		return (0);
+}
+
 static void	check_sign(int *i, int *sign, const char *str)
 {
 	if (str[*i] == '-' || str[*i] == '+')
@@ -26,50 +45,23 @@ long long	ft_atoi_buildins(const char *nptr, int *error)
 {
 	int					i;
 	int					sign;
-	unsigned long long	resultado;
+	unsigned long long	res;
 
 	i = 0;
 	sign = 1;
-	resultado = 0;
+	res = 0;
 	check_sign(&i, &sign, nptr);
 	while (nptr[i] >= '0' && nptr[i] <= '9')
 	{
-		resultado = resultado * 10 + (nptr[i] - '0');
-		i++;
-		if (resultado > LONG_MAX && sign == 1)
+		if (out_of_limits(res, sign, nptr[i]))
 		{
 			*error = 0;
 			return (1);
 		}
-		if (resultado > ((unsigned long long)LONG_MAX + 1) && sign == -1)
-		{
-			*error = 0;
-			return (1);
-		}
-	}
-	return (sign * resultado);
-}
-
-int	is_num(char *arg)
-{
-	int	i;
-
-	i = 0;
-	if (!arg[i])
-		return (0);
-	if (arg[i] == '-' || arg[i] == '+')
-	{
-		i++;
-		if (!arg[i])
-			return (0);
-	}
-	while (arg[i])
-	{
-		if (!ft_isdigit(arg[i]))
-			return (0);
+		res = res * 10 + (nptr[i] - '0');
 		i++;
 	}
-	return (1);
+	return (sign * res);
 }
 
 void	new_env_var(t_sh *mini, char *new_var)
@@ -92,17 +84,4 @@ void	new_env_var(t_sh *mini, char *new_var)
 	new_env[i] = new_var;
 	free(mini->envp);
 	mini->envp = new_env;
-}
-
-int	is_built_in(char *cmd)
-{
-	if (!ft_strncmp(cmd, "echo", 5)
-		|| !ft_strncmp(cmd, "cd", 3)
-		|| !ft_strncmp(cmd, "pwd", 4)
-		|| !ft_strncmp(cmd, "export", 7)
-		|| !ft_strncmp(cmd, "unset", 6)
-		|| !ft_strncmp(cmd, "env", 4)
-		|| !ft_strncmp(cmd, "exit", 5))
-		return (1);
-	return (0);
 }

@@ -35,6 +35,28 @@ static void	too_many_args(t_sh *mini)
 	mini->exit_status = 1;
 }
 
+static int	is_num(char *arg)
+{
+	int	i;
+
+	i = 0;
+	if (!arg[i])
+		return (0);
+	if (arg[i] == '-' || arg[i] == '+')
+	{
+		i++;
+		if (!arg[i])
+			return (0);
+	}
+	while (arg[i])
+	{
+		if (!ft_isdigit(arg[i]))
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
 static void	exec_num_exit(t_sh *mini)
 {
 	long long	exit_num;

@@ -12,20 +12,37 @@
 
 #include "../../includes/minishell.h"
 
+static int	check_n_flag(char *str)
+{
+	int	i;
+
+	i = 1;
+	if (str[0] != '-' || str[1] == '\0')
+		return (0);
+	while (str[i] == 'n')
+		i++;
+	if (str[i] == '\0')
+		return (1);
+	return (0);
+}
+
 void	exec_echo(t_sh *mini)
 {
 	int	i;
 	int	has_line_break;
 
-	if (!ft_strncmp(mini->cmd_list->args[1], "-n", 3))
+	mini->exit_status = 0;
+	if (!mini->cmd_list->args[1])
 	{
-		i = 2;
-		has_line_break = 0;
+		ft_putchar_fd('\n', STDOUT_FILENO);
+		return ;
 	}
-	else
+	has_line_break = 1;
+	i = 1;
+	while (mini->cmd_list->args[i] && check_n_flag(mini->cmd_list->args[i]))
 	{
-		i = 1;
-		has_line_break = 1;
+		has_line_break = 0;
+		i++;
 	}
 	while (mini->cmd_list->args[i])
 	{
@@ -36,5 +53,4 @@ void	exec_echo(t_sh *mini)
 	}
 	if (has_line_break)
 		ft_putchar_fd('\n', STDOUT_FILENO);
-	mini->exit_status = 0;
 }
