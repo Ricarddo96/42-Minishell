@@ -29,12 +29,6 @@ static void	exec_char_exit(t_sh *mini)
 	exit (255);
 }
 
-static void	too_many_args(t_sh *mini)
-{
-	error_msg("too many arguments");
-	mini->exit_status = 1;
-}
-
 static int	is_num(char *arg)
 {
 	int	i;

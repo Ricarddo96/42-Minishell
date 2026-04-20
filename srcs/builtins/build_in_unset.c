@@ -24,13 +24,6 @@ static int	unset_checker(char *envp, char *arg, int len)
 	return (0);
 }
 
-static void	print_unset_error(char *str)
-{
-	ft_putstr_fd("minishell: unset: '", STDERR_FILENO);
-	ft_putstr_fd(str, STDERR_FILENO);
-	ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
-}
-
 static int	unset_check_args(t_sh *mini, int i)
 {
 	int		j;
@@ -57,30 +50,30 @@ static int	unset_check_args(t_sh *mini, int i)
 	return (1);
 }
 
-static void    free_var_in_env(t_sh *mini, int j, int k)
+static void	free_var_in_env(t_sh *mini, int j, int k)
 {
-    char    **new_env;
-    int     i;
+	char	**new_env;
+	int		i;
 
-    i = 0;
-    while (mini->envp[i])
-        i++;
-    new_env = calloc(sizeof(char *), i);
-    if (!new_env)
+	i = 0;
+	while (mini->envp[i])
+		i++;
+	new_env = calloc(sizeof(char *), i);
+	if (!new_env)
 		exit(1);
-    i = 0;
-    while (mini->envp[i])
-    {
-        if (i == j)
-            i++;
-        else
-        {
-            new_env[k] = mini->envp[i];
-            i++;
+	i = 0;
+	while (mini->envp[i])
+	{
+		if (i == j)
+			i++;
+		else
+		{
+			new_env[k] = mini->envp[i];
+			i++;
 			k++;
-        }
-    }
-    free(mini->envp[j]);
+		}
+	}
+	free(mini->envp[j]);
 	free(mini->envp);
 	mini->envp = new_env;
 }

@@ -12,33 +12,22 @@
 
 #include "../../includes/minishell.h"
 
-int	is_built_in(char *cmd)
+void	print_export_error_msg(char *str)
 {
-	if (!ft_strncmp(cmd, "echo", 5)
-		|| !ft_strncmp(cmd, "cd", 3)
-		|| !ft_strncmp(cmd, "pwd", 4)
-		|| !ft_strncmp(cmd, "export", 7)
-		|| !ft_strncmp(cmd, "unset", 6)
-		|| !ft_strncmp(cmd, "env", 4)
-		|| !ft_strncmp(cmd, "exit", 5))
-		return (1);
-	return (0);
+	ft_putstr_fd("minishell: export: '", STDERR_FILENO);
+	ft_putstr_fd(str, STDERR_FILENO);
+	ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
 }
 
-void	which_built_ins(t_sh *mini)
+void	print_unset_error(char *str)
 {
-	if (!ft_strncmp(mini->cmd_list->args[0], "echo", 5))
-		exec_echo(mini);
-	if (!ft_strncmp(mini->cmd_list->args[0], "cd", 3))
-		which_dir(mini);
-	if (!ft_strncmp(mini->cmd_list->args[0], "pwd", 4))
-		exec_pwd(mini);
-	if (!ft_strncmp(mini->cmd_list->args[0], "export", 7))
-		which_export(mini);
-	if (!ft_strncmp(mini->cmd_list->args[0], "unset", 6))
-		exec_unset(mini);
-	if (!ft_strncmp(mini->cmd_list->args[0], "env", 4))
-		exec_env(mini);
-	if (!ft_strncmp(mini->cmd_list->args[0], "exit", 5))
-		which_exit(mini);
+	ft_putstr_fd("minishell: unset: '", STDERR_FILENO);
+	ft_putstr_fd(str, STDERR_FILENO);
+	ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
+}
+
+void	too_many_args(t_sh *mini)
+{
+	error_msg("too many arguments");
+	mini->exit_status = 1;
 }

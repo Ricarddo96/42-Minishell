@@ -12,20 +12,13 @@
 
 #include "../../includes/minishell.h"
 
-void	print_export_error_msg(char *str)
-{
-	ft_putstr_fd("minishell: export: '", STDERR_FILENO);
-	ft_putstr_fd(str, STDERR_FILENO);
-	ft_putendl_fd("': not a valid identifier", STDERR_FILENO);	
-}
-
 static int	out_of_limits(unsigned long long res, int sign, const char c)
 {
-	if ((res > (LONG_MAX / 10) && sign == 1) ||
-		(res == LONG_MAX / 10 && (c - '0') > 7))
+	if ((res > (LONG_MAX / 10) && sign == 1)
+		|| (res == LONG_MAX / 10 && (c - '0') > 7))
 		return (1);
-	else if ((res > (unsigned long long)LONG_MAX / 10) || 
-		(res == (unsigned long long)LONG_MAX / 10 && (c - '0') > 8))
+	else if ((res > (unsigned long long)LONG_MAX / 10)
+		|| (res == (unsigned long long)LONG_MAX / 10 && (c - '0') > 8))
 		return (1);
 	else
 		return (0);

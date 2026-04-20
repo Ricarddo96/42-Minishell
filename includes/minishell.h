@@ -117,11 +117,11 @@ void		free_cmd_list(t_cmd *list);
 void		free_matrix(char **matrix);
 
 // Executor
-int			executor(t_sh *mini);   
+int			executor(t_sh *mini);
 void		free_redirs(t_redir *list);
 
-// Built ins
-void    	which_built_ins(t_sh *mini);
+// Built-ins
+void		which_built_ins(t_sh *mini);
 void		exec_echo(t_sh *mini);
 void		exec_pwd(t_sh *mini);
 void		exec_env(t_sh *mini);
@@ -135,6 +135,10 @@ void		exec_export_args(t_sh *mini);
 int			is_built_in(char *cmd);
 long long	ft_atoi_buildins(const char *nptr, int *error);
 void		new_env_var(t_sh *mini, char *new_var);
+
+// Built-ins error msg
 void		print_export_error_msg(char *str);
+void		print_unset_error(char *str);
+void		too_many_args(t_sh *mini);
 
 #endif

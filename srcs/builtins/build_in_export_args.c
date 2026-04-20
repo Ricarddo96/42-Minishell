@@ -48,7 +48,7 @@ static int	is_in_env(t_sh *mini, char *str)
 
 	i = 0;
 	len = 0;
-	while(str[len] != '=' && str[len] != '\0')
+	while (str[len] != '=' && str[len] != '\0')
 		len++;
 	while (mini->envp[i])
 	{
@@ -94,7 +94,7 @@ void	exec_export_args(t_sh *mini)
 	int		j;
 
 	i = 1;
-    mini->exit_status = 0;
+	mini->exit_status = 0;
 	while (mini->cmd_list->args[i])
 	{
 		if (export_check_args(mini, mini->cmd_list->args[i]))

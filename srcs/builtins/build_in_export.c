@@ -87,17 +87,17 @@ static void	exec_export_no_args(t_sh *mini)
 	sort_copy(tmp);
 	print_export_env(tmp);
 	free(tmp);
-    mini->exit_status = 0;
+	mini->exit_status = 0;
 }
 
 void	which_export(t_sh *mini)
 {
 	if (!mini->cmd_list->args[1])
-    {
-		exec_export_no_args(mini);
-    }
-    else
 	{
-        exec_export_args(mini);
+		exec_export_no_args(mini);
+	}
+	else
+	{
+		exec_export_args(mini);
 	}
 }
