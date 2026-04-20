@@ -20,7 +20,7 @@ void	exec_pwd(t_sh *mini)
 	i = 0;
 	while (mini->envp[i])
 	{
-		if (ft_strnstr(mini->envp[i], "PWD=", 5))
+		if (ft_strncmp(mini->envp[i], "PWD=", 4) == 0)
 			break ;
 		i++;
 	}
@@ -35,6 +35,6 @@ void	exec_pwd(t_sh *mini)
 		ft_putendl_fd(wd, STDOUT_FILENO);
 	}
 	else
-		ft_putendl_fd(mini->envp[i] + 5, STDOUT_FILENO);
+		ft_putendl_fd(mini->envp[i] + 4, STDOUT_FILENO);
 	mini->exit_status = 0;
 }

@@ -12,51 +12,33 @@
 
 #include "../../includes/minishell.h"
 
-// Está sin terminar
-void	exec_unset(t_sh *mini)
+int	is_built_in(char *cmd)
 {
-	int	i;
-	int	j;
-	int	len;
-
-	i = 1;
-	if (mini->cmd_list->args[1] == NULL)
-	{
-		mini->exit_status = 0;
-		return ;
-	}
-	while (mini->cmd_list->args[i])
-	{
-		j = 0;
-		len = ft_strlen(mini->cmd_list->args[i]);
-		while (mini->envp[j])
-		{
-			if (ft_strncmp(mini->envp[j], mini->cmd_list->args[i], len) == 0 && mini->envp[j][len] == '=' || mini->envp[j][len] == '\0')
-			{
-				free_var_in_env(mini, j);
-				break ;
-			}
-			j++;
-		}
-		i++;
-	}
-	mini->exit_status = 0;
+	if (!ft_strncmp(cmd, "echo", 5)
+		|| !ft_strncmp(cmd, "cd", 3)
+		|| !ft_strncmp(cmd, "pwd", 4)
+		|| !ft_strncmp(cmd, "export", 7)
+		|| !ft_strncmp(cmd, "unset", 6)
+		|| !ft_strncmp(cmd, "env", 4)
+		|| !ft_strncmp(cmd, "exit", 5))
+		return (1);
+	return (0);
 }
 
-void    which_built_ins(t_sh *mini)
+void	which_built_ins(t_sh *mini)
 {
-    if (!ft_strncmp(mini->cmd_list->args[0], "echo", 5))
+	if (!ft_strncmp(mini->cmd_list->args[0], "echo", 5))
 		exec_echo(mini);
-    if (!ft_strncmp(mini->cmd_list->args[0], "cd", 3))
+	if (!ft_strncmp(mini->cmd_list->args[0], "cd", 3))
 		which_dir(mini);
-    if (!ft_strncmp(mini->cmd_list->args[0], "pwd", 4))
+	if (!ft_strncmp(mini->cmd_list->args[0], "pwd", 4))
 		exec_pwd(mini);
-	/*if (!ft_strncmp(mini->cmd_list->args[0], "export", 7))
-		exec_expor(mini);
+	if (!ft_strncmp(mini->cmd_list->args[0], "export", 7))
+		which_export(mini);
 	if (!ft_strncmp(mini->cmd_list->args[0], "unset", 6))
 		exec_unset(mini);
-    */if (!ft_strncmp(mini->cmd_list->args[0], "env", 4))
+	if (!ft_strncmp(mini->cmd_list->args[0], "env", 4))
 		exec_env(mini);
-    if (!ft_strncmp(mini->cmd_list->args[0], "exit", 5))
+	if (!ft_strncmp(mini->cmd_list->args[0], "exit", 5))
 		which_exit(mini);
 }

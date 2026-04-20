@@ -12,45 +12,22 @@
 
 #include "../../includes/minishell.h"
 
-static int	check_n_flag(char *str)
+void	print_export_error_msg(char *str)
 {
-	int	i;
-
-	i = 1;
-	if (str[0] != '-' || str[1] == '\0')
-		return (0);
-	while (str[i] == 'n')
-		i++;
-	if (str[i] == '\0')
-		return (1);
-	return (0);
+	ft_putstr_fd("minishell: export: '", STDERR_FILENO);
+	ft_putstr_fd(str, STDERR_FILENO);
+	ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
 }
 
-void	exec_echo(t_sh *mini)
+void	print_unset_error(char *str)
 {
-	int	i;
-	int	has_line_break;
+	ft_putstr_fd("minishell: unset: '", STDERR_FILENO);
+	ft_putstr_fd(str, STDERR_FILENO);
+	ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
+}
 
-	mini->exit_status = 0;
-	if (!mini->cmd_list->args[1])
-	{
-		ft_putchar_fd('\n', STDOUT_FILENO);
-		return ;
-	}
-	has_line_break = 1;
-	i = 1;
-	while (mini->cmd_list->args[i] && check_n_flag(mini->cmd_list->args[i]))
-	{
-		has_line_break = 0;
-		i++;
-	}
-	while (mini->cmd_list->args[i])
-	{
-		ft_putstr_fd(mini->cmd_list->args[i], STDOUT_FILENO);
-		i++;
-		if (mini->cmd_list->args[i])
-			ft_putchar_fd(' ', STDOUT_FILENO);
-	}
-	if (has_line_break)
-		ft_putchar_fd('\n', STDOUT_FILENO);
+void	too_many_args(t_sh *mini)
+{
+	error_msg("too many arguments");
+	mini->exit_status = 1;
 }

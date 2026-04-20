@@ -22,7 +22,7 @@ void	exec_env(t_sh *mini)
 		ft_putstr_fd("env: '", STDERR_FILENO);
 		ft_putstr_fd(mini->cmd_list->args[1], STDERR_FILENO);
 		ft_putendl_fd("': no such file or directory", STDERR_FILENO);
-		mini->exit_status = 127;
+		mini->exit_status = 1;
 		return ;
 	}
 	while (mini->envp[i])
