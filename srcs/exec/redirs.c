@@ -1,29 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   executor.c                                         :+:      :+:    :+:   */
+/*   redirs.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/15 16:39:20 by ridoming          #+#    #+#             */
+/*   Created: 2026/04/20 17:00:00 by ridoming          #+#    #+#             */
 /*   Updated: 2026/04/20 17:00:00 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-int	executor(t_sh *mini)
+int	apply_redirs(t_redir *redirs)
 {
-	if (!mini->cmd_list || !mini->cmd_list->args)
-		return (mini->exit_status);
-	if (mini->cmd_list->next == NULL)
+	int	fd;
+
+	while (redirs)
 	{
-		if (is_built_in(mini->cmd_list->args[0]))
-			which_built_ins(mini);
+		if (redirs->type == REDIR_IN)
+			fd = open(redirs->file, O_RDONLY);
+		else if (redirs->type == REDIR_OUT)
+			fd = open(redirs->file, O_WRONLY | O_CREAT | O_TRUNC, 0664);
+		else if (redirs->type == REDIR_APPEND)
+			fd = open(redirs->file, O_WRONLY | O_CREAT | O_APPEND, 0664);
 		else
-			exec_one_cmd(mini);
-		return (mini->exit_status);
+		{
+			redirs = redirs->next;
+			continue ;
+		}
+		if (fd == -1)
+			return (perror("minishell"), -1);
+		if (redirs->type == REDIR_IN)
+			dup2(fd, STDIN_FILENO);
+		else
+			dup2(fd, STDOUT_FILENO);
+		close(fd);
+		redirs = redirs->next;
 	}
-	exec_pipeline(mini);
-	return (mini->exit_status);
+	return (0);
 }
