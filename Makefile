@@ -31,7 +31,8 @@ SRC =	srcs/main.c \
 		srcs/builtins/build_in_env.c \
 		srcs/builtins/build_in_unset.c \
 		srcs/builtins/build_in_export.c \
-		srcs/builtins/build_in_export_args.c
+		srcs/builtins/build_in_export_args.c \
+		srcs/builtins/print_msg_errors.c
 
 OBJ = $(SRC:.c=.o)
 
