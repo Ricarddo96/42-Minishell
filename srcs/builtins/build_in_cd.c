@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   build_in_cd.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/16 15:43:57 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/16 15:45:29 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/21 12:56:52 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,5 +93,6 @@ void	which_dir(t_sh *mini)
 	}
 	if (mini->cmd_list->args[1] == NULL)
 		search_cd_home(mini);
-	exec_cd(mini, mini->cmd_list->args[1]);
+	else
+		exec_cd(mini, mini->cmd_list->args[1]);
 }

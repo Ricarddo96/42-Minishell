@@ -128,6 +128,9 @@ int			exec_pipeline(t_sh *mini);
 char		*resolve_path(char *cmd, char **envp);
 int			apply_redirs(t_redir *redirs);
 void		free_redirs(t_redir *list);
+int			count_cmds(t_cmd *cmd);
+void		close_pipes(int (*pipes)[2], int count);
+void		spawn_children(t_sh *mini, int (*pipes)[2], pid_t *pids, int n);
 
 // Built-ins
 void		which_built_ins(t_sh *mini);

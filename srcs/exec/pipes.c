@@ -6,13 +6,13 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 17:00:00 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/20 17:00:00 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/21 12:36:53 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-static int	count_cmds(t_cmd *cmd)
+int	count_cmds(t_cmd *cmd)
 {
 	int	count;
 
@@ -25,76 +25,10 @@ static int	count_cmds(t_cmd *cmd)
 	return (count);
 }
 
-static void	close_pipes(int (*pipes)[2], int count)
+int	create_pipes(int (*pipes)[2], int n)
 {
 	int	i;
 
-	i = 0;
-	while (i < count)
-	{
-		close(pipes[i][0]);
-		close(pipes[i][1]);
-		i++;
-	}
-}
-
-static void	child_exec(t_cmd *cmd, t_sh *mini)
-{
-	char	*path;
-
-	path = resolve_path(cmd->args[0], mini->envp);
-	if (!path)
-	{
-		ft_putstr_fd("minishell: command not found: ", 2);
-		ft_putstr_fd(cmd->args[0], 2);
-		ft_putstr_fd("\n", 2);
-		exit(127);
-	}
-	execve(path, cmd->args, mini->envp);
-	perror("minishell");
-	free(path);
-	exit(126);
-}
-
-static void	handle_pipe_child(t_cmd *cmd, t_sh *mini, int (*pipes)[2], int i)
-{
-	int	n;
-
-	n = count_cmds(mini->cmd_list);
-	if (i > 0)
-		dup2(pipes[i - 1][0], STDIN_FILENO);
-	if (i < n - 1)
-		dup2(pipes[i][1], STDOUT_FILENO);
-	close_pipes(pipes, n - 1);
-	if (apply_redirs(cmd->redirs) < 0)
-		exit(1);
-	if (is_built_in(cmd->args[0]))
-	{
-		mini->cmd_list = cmd;
-		which_built_ins(mini);
-		exit(mini->exit_status);
-	}
-	child_exec(cmd, mini);
-}
-
-int	exec_pipeline(t_sh *mini)
-{
-	int		(*pipes)[2];
-	pid_t	*pids;
-	t_cmd	*cmd;
-	int		n;
-	int		i;
-	int		st;
-	int		last_status;
-
-	cmd = mini->cmd_list;
-	n = count_cmds(mini->cmd_list);
-	pipes = malloc(sizeof(int [2]) * (n - 1));
-	if (!pipes)
-		return (0);
-	pids = malloc(sizeof(pid_t) * n);
-	if (!pids)
-		return (free(pipes), 0);
 	i = 0;
 	while (i < n - 1)
 	{
@@ -102,43 +36,68 @@ int	exec_pipeline(t_sh *mini)
 		{
 			perror("minishell: pipe");
 			close_pipes(pipes, i);
-			free(pipes);
-			free(pids);
-			return (1);
+			return (-1);
 		}
 		i++;
 	}
+	return (0);
+}
+
+static int	wait_children(pid_t *pids, int n)
+{
+	int	i;
+	int	st;
+	int	last;
+
+	last = 0;
+	st = 0;
 	i = 0;
 	while (i < n)
 	{
-		pids[i] = fork();
-		if (pids[i] == -1)
+		if (pids[i] != -1)
 		{
-			perror("minishell: fork");
-			break ;
+			waitpid(pids[i], &st, 0);
+			if (i == n - 1)
+				last = st;
 		}
-		if (pids[i] == 0)
-		{
-			handle_pipe_child(cmd, mini, pipes, i);
-			exit(1);
-		}
-		cmd = cmd->next;
 		i++;
 	}
-	close_pipes(pipes, n - 1);
-	last_status = 0;
-	i = 0;
-	while (i < n)
-	{
-		waitpid(pids[i], &st, 0);
-		if (i == n - 1)
-			last_status = st;
-		i++;
-	}
-	if (WIFEXITED(last_status))
+	return (last);
+}
+
+static void	set_exit_status(t_sh *mini, int last_status, int last_ok)
+{
+	if (!last_ok)
+		mini->exit_status = 1;
+	else if (WIFEXITED(last_status))
 		mini->exit_status = WEXITSTATUS(last_status);
 	else if (WIFSIGNALED(last_status))
 		mini->exit_status = 128 + WTERMSIG(last_status);
+}
+
+int	exec_pipeline(t_sh *mini)
+{
+	int		(*pipes)[2];
+	pid_t	*pids;
+	int		n;
+	int		last;
+
+	n = count_cmds(mini->cmd_list);
+	pipes = malloc(sizeof(int [2]) * (n - 1));
+	pids = malloc(sizeof(pid_t) * n);
+	if (!pipes || !pids)
+		return (free(pipes), free(pids), 0);
+	if (create_pipes(pipes, n) < 0)
+	{
+		free(pipes);
+		free(pids);
+		mini->exit_status = 1;
+		return (mini->exit_status);
+	}
+	spawn_children(mini, pipes, pids, n);
+	close_pipes(pipes, n - 1);
+	last = wait_children(pids, n);
+	set_exit_status(mini, last, pids[n - 1] != -1);
 	free(pipes);
 	free(pids);
 	return (mini->exit_status);
