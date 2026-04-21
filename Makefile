@@ -23,6 +23,7 @@ SRC =	srcs/main/main.c \
 		srcs/exec/redirs.c \
 		srcs/exec/exec_simple.c \
 		srcs/exec/pipes.c \
+		srcs/exec/pipes_utils.c \
 		srcs/builtins/utils.c \
 		srcs/builtins/exec_build_in.c \
 		srcs/builtins/build_in_cd.c \
