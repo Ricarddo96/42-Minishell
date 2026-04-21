@@ -1,31 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   executor.c                                         :+:      :+:    :+:   */
+/*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/15 16:39:20 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/20 17:00:00 by ridoming         ###   ########.fr       */
+/*   Created: 2026/03/11 12:41:52 by ridoming          #+#    #+#             */
+/*   Updated: 2026/04/15 17:04:57 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-int	executor(t_sh *mini)
+void	fill_struct(t_sh *mini, char **envp)
 {
-	if (!mini->cmd_list || !mini->cmd_list->args)
-		return (mini->exit_status);
-	if (mini->cmd_list->next == NULL)
-	{
-		if (is_built_in(mini->cmd_list->args[0]))
-			which_built_ins(mini);
-		else
-			exec_one_cmd(mini);
-		return (mini->exit_status);
-	}
-	exec_pipeline(mini);
-	free_cmd_list(mini->cmd_list);
-	mini->cmd_list = NULL;
-	return (mini->exit_status);
+	mini->exit_status = 0;
+	mini->tkn_list = NULL;
+	copy_env(mini, envp);
 }

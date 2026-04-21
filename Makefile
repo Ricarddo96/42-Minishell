@@ -7,7 +7,8 @@ LIBFT_DIR = libft
 LIBFT_LIB = $(LIBFT_DIR)/libft.a
 LIBFT_FLAGS = -L$(LIBFT_DIR) -lft
 
-SRC =	srcs/main.c \
+SRC =	srcs/main/main.c \
+		srcs/main/fill_struct.c \
 		srcs/parser/cmd_parser.c \
 		srcs/parser/tokenize/cmd_tokenizer_a.c \
 		srcs/parser/tokenize/cmd_tokenizer_b.c \
@@ -32,7 +33,8 @@ SRC =	srcs/main.c \
 		srcs/builtins/build_in_unset.c \
 		srcs/builtins/build_in_export.c \
 		srcs/builtins/build_in_export_args.c \
-		srcs/builtins/print_msg_errors.c
+		srcs/builtins/print_msg_errors.c \
+		srcs/signals/signals.c
 
 OBJ = $(SRC:.c=.o)
 

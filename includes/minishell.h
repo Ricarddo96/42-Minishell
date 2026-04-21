@@ -13,6 +13,10 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
+# ifndef _XOPEN_SOURCE
+# define _XOPEN_SOURCE 700
+# endif
+
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
@@ -33,9 +37,7 @@
 # include <limits.h>
 # include "../libft/libft.h"
 
-#ifndef PATH_MAX
-# define PATH_MAX 4096
-#endif
+extern int	g_signal;
 
 typedef enum e_tkn_type
 {
@@ -84,6 +86,9 @@ typedef struct s_minishell
 	t_cmd	*cmd_list;
 	char	**envp;
 }	t_sh;
+
+// Main
+void		fill_struct(t_sh *mini, char **envp);
 
 // Parser
 int			parser(char *line, t_sh *mini);
@@ -144,5 +149,9 @@ void		new_env_var(t_sh *mini, char *new_var);
 void		print_export_error_msg(char *str);
 void		print_unset_error(char *str);
 void		too_many_args(t_sh *mini);
+
+// Signals
+void		handle_signals(void);
+void		signal_status(t_sh *mini);
 
 #endif

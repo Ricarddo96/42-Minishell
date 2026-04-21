@@ -10,21 +10,24 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/minishell.h"
+#include "../../includes/minishell.h"
+
+int		g_signal;
 
 int	main(int argc, char **argv, char **envp)
 {
 	char	*line;
-	t_sh	mini;	
+	t_sh	mini;
 
 	(void)argc;
 	(void)argv;
-	mini.exit_status = 0;
-	mini.tkn_list = NULL;
-	copy_env(&mini, envp);
+	fill_struct(&mini, envp);
 	while (1)
 	{
+		handle_signals();
 		line = readline("Prompt >> ");
+		if (g_signal)
+			signal_status(&mini);
 		if (!line)
 		{
 			ft_putstr_fd("exit\n", STDERR_FILENO);
@@ -34,8 +37,6 @@ int	main(int argc, char **argv, char **envp)
 			add_history(line);
 		if (parser(line, &mini))
 			executor(&mini);
-		free_cmd_list(mini.cmd_list);
-		mini.cmd_list = NULL;
 		free(line);
 	}
 	return (0);
