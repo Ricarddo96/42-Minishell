@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/21 12:40:00 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/21 12:40:00 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/21 16:42:17 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ static void	handle_pipe_child(t_cmd *cmd, t_sh *mini, int (*pipes)[2], int i)
 {
 	int	n;
 
+	handle_signals_child();
 	n = count_cmds(mini->cmd_list);
 	if (i > 0)
 		dup2(pipes[i - 1][0], STDIN_FILENO);
