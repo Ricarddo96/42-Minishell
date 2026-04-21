@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 12:48:32 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/16 16:58:07 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/21 16:47:26 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,7 +154,13 @@ void		print_unset_error(char *str);
 void		too_many_args(t_sh *mini);
 
 // Signals
-void		handle_signals(void);
+void		handle_signals_interactive(void);
+void		handle_signals_exec(void);
+void		handle_signals_child(void);
 void		signal_status(t_sh *mini);
+
+// pipes
+
+int	create_pipes(int (*pipes)[2], int n);
 
 #endif

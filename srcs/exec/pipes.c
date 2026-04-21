@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 17:00:00 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/21 12:36:53 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/21 16:45:17 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,11 @@ static void	set_exit_status(t_sh *mini, int last_status, int last_ok)
 	else if (WIFEXITED(last_status))
 		mini->exit_status = WEXITSTATUS(last_status);
 	else if (WIFSIGNALED(last_status))
+	{
+		if (WTERMSIG(last_status) == SIGINT)
+			write(STDERR_FILENO, "\n", 1);
 		mini->exit_status = 128 + WTERMSIG(last_status);
+	}
 }
 
 int	exec_pipeline(t_sh *mini)
@@ -89,14 +93,14 @@ int	exec_pipeline(t_sh *mini)
 		return (free(pipes), free(pids), 0);
 	if (create_pipes(pipes, n) < 0)
 	{
-		free(pipes);
-		free(pids);
 		mini->exit_status = 1;
-		return (mini->exit_status);
+		return (free(pipes), free(pids), mini->exit_status);
 	}
 	spawn_children(mini, pipes, pids, n);
 	close_pipes(pipes, n - 1);
+	handle_signals_exec();
 	last = wait_children(pids, n);
+	handle_signals_interactive();
 	set_exit_status(mini, last, pids[n - 1] != -1);
 	free(pipes);
 	free(pids);

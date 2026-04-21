@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 12:41:52 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/15 17:04:57 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/21 16:39:40 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int	main(int argc, char **argv, char **envp)
 	fill_struct(&mini, envp);
 	while (1)
 	{
-		handle_signals();
+		handle_signals_interactive();
 		line = readline("Prompt >> ");
 		if (g_signal)
 			signal_status(&mini);
