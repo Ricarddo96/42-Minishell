@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   validator.c                                        :+:      :+:    :+:   */
+/*   free_memory.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/18 12:57:02 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/14 13:22:03 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/23 15:58:14 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,8 @@ void	free_redirs(t_redir *list)
 	while (list)
 	{
 		tmp = list->next;
+		if (list->heredoc_fd != -1)
+			close(list->heredoc_fd);
 		free(list->file);
 		free(list);
 		list = tmp;

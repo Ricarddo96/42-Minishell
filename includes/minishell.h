@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 12:48:32 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/21 16:47:26 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/23 16:41:02 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ typedef struct s_redir
 	t_tkn_type		type;
 	char			*file;
 	struct s_redir	*next;
+	int 			heredoc_fd;
 }	t_redir;
 
 typedef struct s_tkn
@@ -162,5 +163,9 @@ void		signal_status(t_sh *mini);
 // pipes
 
 int	create_pipes(int (*pipes)[2], int n);
+
+int pre_read_heredocs(t_cmd *cmd_list);
+int read_heredoc(char *delimiter);
+void		handle_signals_heredoc(void);
 
 #endif
