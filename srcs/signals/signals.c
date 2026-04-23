@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 12:41:52 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/21 16:38:45 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/23 16:27:46 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,4 +60,23 @@ void	signal_status(t_sh *mini)
 {
 	mini->exit_status = g_signal;
 	g_signal = 0;
+}
+
+static void	handler_heredoc(int sig)
+{
+	(void)sig;
+	g_signal = 130;
+	close(STDIN_FILENO);
+}
+
+void	handle_signals_heredoc(void)
+{
+	struct sigaction	sa;
+
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	sa.sa_handler = &handler_heredoc;
+	sigaction(SIGINT, &sa, NULL);
+	sa.sa_handler = SIG_IGN;
+	sigaction(SIGQUIT, &sa, NULL);
 }

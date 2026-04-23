@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parser.c                                           :+:      :+:    :+:   */
+/*   build_cmd_list.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/19 16:58:24 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/14 18:49:45 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/23 15:29:18 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ static int	add_redir(t_cmd *cmd, t_tkn_type type, char *file)
 	new->next = NULL;
 	new->type = type;
 	new->file = ft_strdup(file);
+	new->heredoc_fd = -1;
 	if (!cmd->redirs)
 		cmd->redirs = new;
 	else

@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/15 16:39:20 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/21 12:59:48 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/23 16:31:49 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,13 @@ int	executor(t_sh *mini)
 {
 	if (!mini->cmd_list)
 		return (mini->exit_status);
+	if (pre_read_heredocs(mini->cmd_list) == -1)
+	{
+			signal_status(mini);
+			free_cmd_list(mini->cmd_list);
+			mini->cmd_list = NULL;
+			return (mini->exit_status);
+	}
 	if (!mini->cmd_list->args)
 	{
 		if (mini->cmd_list->redirs)
