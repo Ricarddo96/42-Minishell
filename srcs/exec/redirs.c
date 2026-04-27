@@ -34,6 +34,7 @@ int	read_heredoc(char *delimiter)
 			free(line);
 			break ;
 		}
+		ft_putendl_fd(line, fd[1]);
 		write(fd[1], line, ft_strlen(line));
 		write(fd[1], "\n", 1);
 		free(line);

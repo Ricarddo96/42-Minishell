@@ -9,7 +9,8 @@ LIBFT_FLAGS = -L$(LIBFT_DIR) -lft
 
 SRC =	srcs/main/main.c \
 		srcs/main/fill_struct.c \
-		srcs/parser/cmd_parser.c \
+		srcs/main/prompt.c \
+		srcs/parser/args_parser.c \
 		srcs/parser/tokenize/cmd_tokenizer_a.c \
 		srcs/parser/tokenize/cmd_tokenizer_b.c \
 		srcs/parser/tokenize/cmd_tokenizer_utils.c \
@@ -35,7 +36,8 @@ SRC =	srcs/main/main.c \
 		srcs/builtins/build_in_export.c \
 		srcs/builtins/build_in_export_args.c \
 		srcs/builtins/print_msg_errors.c \
-		srcs/signals/signals.c
+		srcs/signals/signals.c \
+		srcs/signals/signals_forks.c
 
 OBJ = $(SRC:.c=.o)
 

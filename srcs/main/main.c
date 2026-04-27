@@ -25,7 +25,7 @@ int	main(int argc, char **argv, char **envp)
 	while (1)
 	{
 		handle_signals_interactive();
-		line = readline("Prompt >> ");
+		get_prompt(&mini, &line);
 		if (g_signal)
 			signal_status(&mini);
 		if (!line)

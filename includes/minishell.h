@@ -90,10 +90,10 @@ typedef struct s_minishell
 
 // Main
 void		fill_struct(t_sh *mini, char **envp);
+void		get_prompt(t_sh *mini, char **line);
 
 // Parser
 int			parser(char *line, t_sh *mini);
-void		copy_env(t_sh *mini, char **envp);
 int			error_msg(char *msg);
 
 // Tokenizado

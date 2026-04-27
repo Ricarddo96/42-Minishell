@@ -12,6 +12,22 @@
 
 #include "../../includes/minishell.h"
 
+static void	chdir_error(t_sh *mini, char *dir)
+{
+	if (!dir[0])
+	{
+		mini->exit_status = 0;
+		return ;
+	}
+	else
+	{
+		ft_putstr_fd("minishell: cd: ", STDERR_FILENO);
+		perror(dir);
+		mini->exit_status = 1;
+		return ;
+	}
+}
+
 static void	update_wd_in_env(t_sh *mini, char *env_var, char *new_pwd)
 {
 	int		i;
@@ -44,15 +60,7 @@ static void	exec_cd(t_sh *mini, char *dir)
 	}
 	if (chdir(dir) != 0)
 	{
-		if (!dir[0])
-		{
-			mini->exit_status = 0;
-			return ;
-		}
-		ft_putstr_fd("minishell: cd: ", STDERR_FILENO);
-		perror(dir);
-		mini->exit_status = 1;
-		return ;
+		return (chdir_error(mini, dir));
 	}
 	update_wd_in_env(mini, "OLDPWD=", wd);
 	if (getcwd(wd, sizeof(wd)) == NULL)
@@ -90,14 +98,14 @@ static void	search_cd_home(t_sh *mini)
 
 void	which_dir(t_sh *mini)
 {
-	if (mini->cmd_list->args[2] != NULL)
+	if (mini->cmd_list->args[1] == NULL || mini->cmd_list->args[1][0] == '~')
+		search_cd_home(mini);
+	else if (mini->cmd_list->args[2] != NULL)
 	{
 		error_msg("cd: too many arguments");
 		mini->exit_status = 1;
 		return ;
 	}
-	if (mini->cmd_list->args[1] == NULL || mini->cmd_list->args[1][0] == '~')
-		search_cd_home(mini);
 	else
 		exec_cd(mini, mini->cmd_list->args[1]);
 }
