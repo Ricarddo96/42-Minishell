@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 17:00:00 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/23 16:37:05 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/04/27 13:08:22 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,8 @@ int	apply_redirs(t_redir *redirs)
 		else
 			dup2(fd, STDOUT_FILENO);
 		close(fd);
+		if (redirs->type == REDIR_HEREDOC)
+			redirs->heredoc_fd = -1;
 		redirs = redirs->next;
 	}
 	return (0);
