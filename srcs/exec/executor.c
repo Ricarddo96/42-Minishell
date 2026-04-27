@@ -62,10 +62,10 @@ int	executor(t_sh *mini)
 		return (mini->exit_status);
 	if (pre_read_heredocs(mini->cmd_list) == -1)
 	{
-			signal_status(mini);
-			free_cmd_list(mini->cmd_list);
-			mini->cmd_list = NULL;
-			return (mini->exit_status);
+		signal_status(mini);
+		free_cmd_list(mini->cmd_list);
+		mini->cmd_list = NULL;
+		return (mini->exit_status);
 	}
 	if (!mini->cmd_list->args)
 	{

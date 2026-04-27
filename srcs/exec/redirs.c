@@ -14,30 +14,30 @@
 #include <readline/readline.h>
 #include <unistd.h>
 
-int read_heredoc(char *delimiter)
+int	read_heredoc(char *delimiter)
 {
-	int fd[2];
-	char *line;
-	int	len;
-	
+	int		fd[2];
+	char	*line;
+	int		len;
+
 	len = ft_strlen(delimiter);
 	if (pipe(fd) == -1)
 		return (-1);
-	while (1) 
+	while (1)
 	{
 		line = readline("> ");
 		if (!line)
-			break;
-		if (ft_strlen(line) == len 
+			break ;
+		if (ft_strlen(line) == len
 			&& ft_strncmp(line, delimiter, len + 1) == 0)
 		{
 			free(line);
-			break;
+			break ;
 		}
 		write(fd[1], line, ft_strlen(line));
 		write(fd[1], "\n", 1);
 		free(line);
-	}	
+	}
 	close(fd[1]);
 	if (g_signal == 130)
 	{

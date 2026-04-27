@@ -23,6 +23,7 @@ static void	update_status(t_sh *mini, int status)
 		mini->exit_status = 128 + WTERMSIG(status);
 	}
 }
+
 static void	handle_fork_one_cmd(t_sh *mini, char *path)
 {
 	pid_t	pid;
@@ -51,7 +52,6 @@ static void	handle_fork_one_cmd(t_sh *mini, char *path)
 	update_status(mini, status);
 	free(path);
 }
-
 
 void	exec_one_cmd(t_sh *mini)
 {

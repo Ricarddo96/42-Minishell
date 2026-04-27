@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-// valgrind --suppressions=readline.supp --leak-check=full --show-leak-kinds=all  ./minishell
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
