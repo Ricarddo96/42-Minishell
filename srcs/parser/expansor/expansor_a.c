@@ -24,9 +24,14 @@ static char	*append_literal(char *result, char *token, int start, int end)
 	return (tmp);
 }
 
-static int	is_quote_char(char c)
+static int	check_if_append(char c, t_quote_state qstate)
 {
-	return (c == '\'' || c == '"');
+	if (c && ((c != '$' || qstate == SINGLE) && (c != '"' && c != '\'')))
+		return (1);
+	else if ((c == '\'' && qstate == DOUBLE) || (c == '"' && qstate == SINGLE))
+		return (1);
+	else
+		return (0);
 }
 
 static void	update_qstate(char c, t_quote_state *qstate)
@@ -54,8 +59,7 @@ static char	*expand_token(char *token, t_sh *mini)
 	while (token[i])
 	{
 		start = i;
-		while (token[i] && !(token[i] == '$' && qstate != SINGLE)
-			&& !is_quote_char(token[i]))
+		while (check_if_append(token[i], qstate))
 			i++;
 		if (i > start)
 			result = append_literal(result, token, start, i);

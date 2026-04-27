@@ -26,7 +26,7 @@ static void	exec_char_exit(t_sh *mini)
 	ft_putendl_fd(": numeric argument required", STDERR_FILENO);
 	free_cmd_list(mini->cmd_list);
 	free_matrix(mini->envp);
-	exit (255);
+	exit (2);
 }
 
 static int	is_num(char *arg)

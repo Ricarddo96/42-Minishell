@@ -14,7 +14,7 @@
 # define MINISHELL_H
 
 # ifndef _XOPEN_SOURCE
-# define _XOPEN_SOURCE 700
+#  define _XOPEN_SOURCE 700
 # endif
 
 # include <stdio.h>
@@ -62,7 +62,7 @@ typedef struct s_redir
 	t_tkn_type		type;
 	char			*file;
 	struct s_redir	*next;
-	int 			heredoc_fd;
+	int				heredoc_fd;
 }	t_redir;
 
 typedef struct s_tkn
@@ -161,11 +161,11 @@ void		handle_signals_child(void);
 void		signal_status(t_sh *mini);
 
 // pipes
+int			create_pipes(int (*pipes)[2], int n);
 
-int	create_pipes(int (*pipes)[2], int n);
-
-int pre_read_heredocs(t_cmd *cmd_list);
-int read_heredoc(char *delimiter);
+// Heredoc
+int			pre_read_heredocs(t_cmd *cmd_list);
+int			read_heredoc(char *delimiter);
 void		handle_signals_heredoc(void);
 
 #endif

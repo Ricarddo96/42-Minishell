@@ -44,6 +44,11 @@ static void	exec_cd(t_sh *mini, char *dir)
 	}
 	if (chdir(dir) != 0)
 	{
+		if (!dir[0])
+		{
+			mini->exit_status = 0;
+			return ;
+		}
 		ft_putstr_fd("minishell: cd: ", STDERR_FILENO);
 		perror(dir);
 		mini->exit_status = 1;
@@ -91,7 +96,7 @@ void	which_dir(t_sh *mini)
 		mini->exit_status = 1;
 		return ;
 	}
-	if (mini->cmd_list->args[1] == NULL)
+	if (mini->cmd_list->args[1] == NULL || mini->cmd_list->args[1][0] == '~')
 		search_cd_home(mini);
 	else
 		exec_cd(mini, mini->cmd_list->args[1]);
