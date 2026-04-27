@@ -102,6 +102,7 @@ int	parser(char *line, t_sh *mini)
 		return (0);
 	if (!validate(mini->tkn_list, mini))
 	{
+		printf("aaaaaaaaaaaaaaaa");
 		free_tokens(mini->tkn_list);
 		mini->tkn_list = NULL;
 		return (0);
