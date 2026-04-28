@@ -26,7 +26,7 @@ static int	get_prompt_home(char *env_home, char **line, char *dir, t_sh *mini)
 	if (!prompt)
 		exit (1);
 	ft_strlcpy(prompt, "\001\033[1;32m\002➜  ", size);
-	ft_strlcpy(prompt, "\001\033[1;36m\002minishell:\001\033[94m\002", size);
+	ft_strlcat(prompt, "\001\033[1;36m\002minishell:\001\033[94m\002", size);
 	ft_strlcat(prompt, " ~", size);
 	ft_strlcat(prompt, dir + l, size);
 	if (mini->exit_status == 0)
@@ -68,7 +68,7 @@ static void	get_prompt_no_home(t_sh *mini, char **line, char *dir)
 	size = (ft_strlen(dir)) + 100;
 	prompt = malloc(sizeof(char) * size);
 	ft_strlcpy(prompt, "\001\033[1;32m\002➜  ", size);
-	ft_strlcpy(prompt, "\001\033[1;36m\002minishell:\001\033[94m\002", size);
+	ft_strlcat(prompt, "\001\033[1;36m\002minishell:\001\033[94m\002", size);
 	ft_strlcat(prompt, dir, size);
 	if (mini->exit_status == 0)
 		ft_strlcat(prompt, "\001\033[1;32m\002 ❯ \001\033[0m\002", size);
