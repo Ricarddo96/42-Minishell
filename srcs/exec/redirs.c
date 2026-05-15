@@ -14,31 +14,35 @@
 #include <readline/readline.h>
 #include <unistd.h>
 
-int	read_heredoc(char *delimiter)
+static void	heredoc_loop(int write_fd, char *delimiter, int len)
 {
-	int		fd[2];
 	char	*line;
-	int		len;
 
-	len = ft_strlen(delimiter);
-	if (pipe(fd) == -1)
-		return (-1);
 	while (1)
 	{
 		line = readline("> ");
 		if (!line)
 			break ;
-		if (ft_strlen(line) == len
+		if (ft_strlen(line) == (size_t)len
 			&& ft_strncmp(line, delimiter, len + 1) == 0)
 		{
 			free(line);
 			break ;
 		}
-		ft_putendl_fd(line, fd[1]);
-		write(fd[1], line, ft_strlen(line));
-		write(fd[1], "\n", 1);
+		ft_putendl_fd(line, write_fd);
+		write(write_fd, line, ft_strlen(line));
+		write(write_fd, "\n", 1);
 		free(line);
 	}
+}
+
+int	read_heredoc(char *delimiter)
+{
+	int	fd[2];
+
+	if (pipe(fd) == -1)
+		return (-1);
+	heredoc_loop(fd[1], delimiter, ft_strlen(delimiter));
 	close(fd[1]);
 	if (g_signal == 130)
 	{
@@ -48,10 +52,24 @@ int	read_heredoc(char *delimiter)
 	return (fd[0]);
 }
 
+static int	read_cmd_heredocs(t_redir *r)
+{
+	while (r)
+	{
+		if (r->type == REDIR_HEREDOC)
+		{
+			r->heredoc_fd = read_heredoc(r->file);
+			if (r->heredoc_fd == -1)
+				return (-1);
+		}
+		r = r->next;
+	}
+	return (0);
+}
+
 int	pre_read_heredocs(t_cmd *cmd_list)
 {
 	t_cmd	*cmd;
-	t_redir	*r;
 	int		saved_stdin;
 	int		status;
 
@@ -61,17 +79,7 @@ int	pre_read_heredocs(t_cmd *cmd_list)
 	cmd = cmd_list;
 	while (cmd && status == 0)
 	{
-		r = cmd->redirs;
-		while (r && status == 0)
-		{
-			if (r->type == REDIR_HEREDOC)
-			{
-				r->heredoc_fd = read_heredoc(r->file);
-				if (r->heredoc_fd == -1)
-					status = -1;
-			}
-			r = r->next;
-		}
+		status = read_cmd_heredocs(cmd->redirs);
 		cmd = cmd->next;
 	}
 	dup2(saved_stdin, STDIN_FILENO);

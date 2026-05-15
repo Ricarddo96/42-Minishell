@@ -56,6 +56,19 @@ static void	exec_redirs_only(t_sh *mini)
 	close(saved_out);
 }
 
+static void	dispatch_cmd(t_sh *mini)
+{
+	if (mini->cmd_list->next == NULL)
+	{
+		if (is_built_in(mini->cmd_list->args[0]))
+			exec_single_builtin(mini);
+		else
+			exec_one_cmd(mini);
+	}
+	else
+		exec_pipeline(mini);
+}
+
 int	executor(t_sh *mini)
 {
 	if (!mini->cmd_list)
@@ -75,15 +88,7 @@ int	executor(t_sh *mini)
 		mini->cmd_list = NULL;
 		return (mini->exit_status);
 	}
-	if (mini->cmd_list->next == NULL)
-	{
-		if (is_built_in(mini->cmd_list->args[0]))
-			exec_single_builtin(mini);
-		else
-			exec_one_cmd(mini);
-	}
-	else
-		exec_pipeline(mini);
+	dispatch_cmd(mini);
 	free_cmd_list(mini->cmd_list);
 	mini->cmd_list = NULL;
 	return (mini->exit_status);

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   prompt.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 12:41:52 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/21 16:39:40 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/05/15 18:23:53 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ static int	get_prompt_home(char *env_home, char **line, char *dir, t_sh *mini)
 	if (mini->exit_status == 0)
 		ft_strlcat(prompt, "\001\033[1;32m\002 ❯ \001\033[0m\002", size);
 	else
-		ft_strlcat(prompt, "\001\033[1;31m\002 ❯ \001\033[0m\002", size);		
+		ft_strlcat(prompt, "\001\033[1;31m\002 ❯ \001\033[0m\002", size);
 	(*line) = readline(prompt);
 	free(prompt);
 	return (1);
