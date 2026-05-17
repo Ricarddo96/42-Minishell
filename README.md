@@ -98,6 +98,8 @@ To run the shell under `valgrind` with a `readline`-aware suppression file, copy
 }
 ```
 
+Then execute this prompt to run the program.
+
 ```bash
 make valgrind
 ```
