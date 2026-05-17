@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 17:00:00 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/23 16:37:05 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/05/17 13:17:29 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ static void	heredoc_loop(int write_fd, char *delimiter, int len)
 		line = readline("> ");
 		if (!line)
 			break ;
-		if (ft_strlen(line) == (size_t)len
+		if (ft_strlen(line) == len
 			&& ft_strncmp(line, delimiter, len + 1) == 0)
 		{
 			free(line);
