@@ -63,6 +63,6 @@ fclean:
 re: fclean all
 
 valgrind:
-	valgrind --suppressions=includes/readline.supp --leak-check=full --show-leak-kinds=all ./minishell
+	valgrind --suppressions=includes/readline.supp --child-silent-after-fork=yes --leak-check=full --show-leak-kinds=all ./minishell
 
 .PHONY: all clean fclean re valgrind

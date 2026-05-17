@@ -6,7 +6,7 @@
 /*   By: ridoming <ridoming@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/11 12:41:52 by ridoming          #+#    #+#             */
-/*   Updated: 2026/04/21 16:39:40 by ridoming         ###   ########.fr       */
+/*   Updated: 2026/05/17 19:34:40 by ridoming         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ int	main(int argc, char **argv, char **envp)
 			signal_status(&mini);
 		if (!line)
 		{
+			free_matrix(mini.envp);
 			ft_putstr_fd("exit\n", STDERR_FILENO);
 			break ;
 		}
