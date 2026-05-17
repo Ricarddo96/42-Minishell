@@ -48,7 +48,7 @@ redirections.
 ### Requirements
 
 - A Unix-like operating system (Linux or macOS).
-- `gcc` or `clang`.
+- Compiler: `cc`.
 - GNU `make`.
 - The `readline` library and its development headers.
   - Debian / Ubuntu: `sudo apt install libreadline-dev`
@@ -81,7 +81,22 @@ Once compiled, launch the shell from the project root:
 A prompt will appear, ready to accept commands as a regular shell would.
 Use `exit` (or `Ctrl+D`) to leave the shell.
 
-To run the shell under `valgrind` with a `readline`-aware suppression file:
+To run the shell under `valgrind` with a `readline`-aware suppression file, copy the next file in the folder /includes:
+
+```bash
+{
+   ignore_readline_leaks
+   Memcheck:Leak
+   ...
+   fun:readline
+}
+{
+   ignore_add_history_leaks
+   Memcheck:Leak
+   ...
+   fun:add_history
+}
+```
 
 ```bash
 make valgrind
@@ -167,7 +182,6 @@ a substitute for understanding the code. Specifically, AI was used for:
 - **Code review**: spotting potential file-descriptor or memory leaks in the
   executor and pipe handling, and suggesting cleaner ways to free the token
   and command lists.
-- **Documentation**: helping draft and structure this `README.md`.
 
 All AI suggestions were manually reviewed, adapted to the project's coding
 style (Norminette-compliant), and tested before being integrated. No code was

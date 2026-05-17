@@ -1,7 +1,7 @@
 NAME = minishell
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -Iincludes -Ilibft -g
+CFLAGS = -Wall -Wextra -Werror -Iincludes -Ilibft
 
 LIBFT_DIR = libft
 LIBFT_LIB = $(LIBFT_DIR)/libft.a
@@ -65,4 +65,4 @@ re: fclean all
 valgrind:
 	valgrind --suppressions=includes/readline.supp --leak-check=full --show-leak-kinds=all ./minishell
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re valgrind
